@@ -23,9 +23,11 @@ const formatDisplayLink = (link: string, name: SocialLinkType) => {
 
 interface SocialLinkProps {
   socialLink: SocialLink;
+  printEmail?: string;
 }
-const SocialLinkComponent: FC<SocialLinkProps> = ({ socialLink }) => {
+const SocialLinkComponent: FC<SocialLinkProps> = ({ socialLink, printEmail }) => {
   const Icon = SOCIAL_LINK_ICON_MAP[socialLink.name];
+  const isPrintEmailOverride = socialLink.name === 'Email' && printEmail;
   return (
     <a
       key={socialLink.name}
@@ -62,7 +64,9 @@ const SocialLinkComponent: FC<SocialLinkProps> = ({ socialLink }) => {
           {socialLink.name === 'Email' ? socialLink.link : socialLink.name}
         </span>
         <span className="hidden print:inline">
-          {formatDisplayLink(socialLink.link, socialLink.name)}
+          {isPrintEmailOverride
+            ? printEmail
+            : formatDisplayLink(socialLink.link, socialLink.name)}
         </span>
       </div>
     </a>

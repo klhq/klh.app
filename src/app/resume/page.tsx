@@ -69,6 +69,7 @@ const ResumePage: FC = () => {
             socialLinks={socialLinks}
             skillSet={skillSet}
             education={education}
+            printEmail={process.env.PRINT_EMAIL}
           />
 
           {/* Main Content (Work Experience) */}

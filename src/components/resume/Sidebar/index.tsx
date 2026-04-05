@@ -21,8 +21,9 @@ interface SidebarProps {
   socialLinks: ReadonlyArray<SocialLinkData>;
   skillSet: SkillSetData;
   education: ExperienceData<College>;
+  printEmail?: string;
 }
-const Sidebar: FC<SidebarProps> = ({ socialLinks, skillSet, education }) => (
+const Sidebar: FC<SidebarProps> = ({ socialLinks, skillSet, education, printEmail }) => (
   <aside
     className={clsx(
       'glass-sidebar animate-fade-in-left flex flex-col gap-8 p-6',
@@ -49,7 +50,7 @@ const Sidebar: FC<SidebarProps> = ({ socialLinks, skillSet, education }) => (
       </div>
       <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-1 print:grid-cols-1 print:gap-1.5">
         {socialLinks.map((e) => (
-          <SocialLink key={e.name} socialLink={e} />
+          <SocialLink key={e.name} socialLink={e} printEmail={printEmail} />
         ))}
       </div>
     </div>
