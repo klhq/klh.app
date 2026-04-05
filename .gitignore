@@ -27,5 +27,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# remote-fetched resume data (do not commit)
+# remote-fetched content (do not commit)
 src/data.jsonc
+src/content/
