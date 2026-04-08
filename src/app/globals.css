@@ -100,6 +100,14 @@
   .glass-button {
     @apply bg-slate-100/80 backdrop-blur-lg dark:bg-slate-800/80;
   }
+
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
 }
 
 /* Base Layer */
