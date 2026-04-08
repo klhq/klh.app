@@ -6,7 +6,7 @@ import MdxContent from '@/components/blog/MdxContent';
 import clsx from 'clsx';
 
 interface PostPageProps {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }
 
 export async function generateStaticParams() {
@@ -33,7 +33,7 @@ export async function generateMetadata({
 }
 
 export default async function PostPage({ params }: PostPageProps) {
-  const { slug } = await params;
+  const { locale, slug } = await params;
   const post = await getPostBySlug(slug);
 
   if (!post) notFound();
@@ -47,7 +47,7 @@ export default async function PostPage({ params }: PostPageProps) {
     >
       <div className="mx-auto w-full max-w-md">
         <Link
-          href="/blog"
+          href={`/${locale}/blog`}
           className={clsx(
             'group mb-8 inline-flex items-center gap-1 text-sm text-slate-400 transition-colors',
             'hover:text-theme-600',
@@ -80,7 +80,7 @@ export default async function PostPage({ params }: PostPageProps) {
             {post.tags.map((tag) => (
               <Link
                 key={tag}
-                href={`/blog?tag=${encodeURIComponent(tag)}`}
+                href={`/${locale}/blog?tag=${encodeURIComponent(tag)}`}
                 className="tag-pill transition-colors hover:text-theme-600 dark:hover:text-theme-400"
               >
                 {tag}

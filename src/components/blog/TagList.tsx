@@ -6,13 +6,14 @@ interface TagListProps {
   tags: string[];
   activeTag?: string;
   counts?: Map<string, number>;
+  locale: string;
 }
 
-const TagList: FC<TagListProps> = ({ tags, activeTag, counts }) => (
+const TagList: FC<TagListProps> = ({ tags, activeTag, counts, locale }) => (
   <div className="flex flex-wrap gap-1.5">
     {activeTag && (
       <Link
-        href="/blog"
+        href={`/${locale}/blog`}
         className="tag-pill transition-colors hover:text-slate-700 dark:hover:text-slate-200"
       >
         All
@@ -23,7 +24,7 @@ const TagList: FC<TagListProps> = ({ tags, activeTag, counts }) => (
       return (
         <Link
           key={tag}
-          href={isActive ? '/blog' : `/blog?tag=${encodeURIComponent(tag)}`}
+          href={isActive ? `/${locale}/blog` : `/${locale}/blog?tag=${encodeURIComponent(tag)}`}
           className={clsx(
             'tag-pill transition-colors',
             isActive

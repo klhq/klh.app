@@ -5,10 +5,11 @@ import type { PostMeta } from '@/types/blog';
 
 interface PostCardProps {
   post: PostMeta;
+  locale: string;
 }
 
-const PostCard: FC<PostCardProps> = ({ post }) => (
-  <Link href={`/blog/${post.slug}`} className="glass-card-interactive group p-5">
+const PostCard: FC<PostCardProps> = ({ post, locale }) => (
+  <Link href={`/${locale}/blog/${post.slug}`} className="glass-card-interactive group p-5">
     <div className="flex items-start justify-between">
       <div>
         <div className="mb-2 font-mono text-[10px] text-slate-400 dark:text-slate-500">

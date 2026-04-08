@@ -10,10 +10,13 @@ export const metadata: Metadata = {
 };
 
 export default async function BlogPage({
+  params,
   searchParams,
 }: {
+  params: Promise<{ locale: string }>;
   searchParams: Promise<{ tag?: string }>;
 }) {
+  const { locale } = await params;
   const { tag } = await searchParams;
   const [posts, tagCounts] = await Promise.all([getAllPosts(), getAllTags()]);
 
@@ -44,7 +47,7 @@ export default async function BlogPage({
 
         {sortedTags.length > 0 && (
           <div className="animate-fade-in-up mb-6">
-            <TagList tags={sortedTags} activeTag={tag} counts={tagCounts} />
+            <TagList tags={sortedTags} activeTag={tag} counts={tagCounts} locale={locale} />
           </div>
         )}
 
@@ -55,7 +58,7 @@ export default async function BlogPage({
         ) : (
           <div className="animate-fade-in-up flex flex-col gap-3">
             {filteredPosts.map((post) => (
-              <PostCard key={post.slug} post={post} />
+              <PostCard key={post.slug} post={post} locale={locale} />
             ))}
           </div>
         )}

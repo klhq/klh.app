@@ -166,7 +166,7 @@ export default async function LandingPage({ params }: LandingPageProps) {
         {/* Link Pills */}
         <section className="animate-fade-in-up mb-8 flex flex-col gap-2.5">
           <LinkPill
-            href="/blog"
+            href={`/${locale}/blog`}
             icon={HiOutlinePencilSquare}
             label={dictionary.nav.blog}
           />
@@ -233,7 +233,7 @@ export default async function LandingPage({ params }: LandingPageProps) {
                 {dictionary.nav.blog}
               </h2>
               <Link
-                href="/blog"
+                href={`/${locale}/blog`}
                 className="text-xs text-slate-400 transition-colors hover:text-theme-600 dark:text-slate-500 dark:hover:text-theme-400"
               >
                 →
@@ -243,7 +243,7 @@ export default async function LandingPage({ params }: LandingPageProps) {
               {recentPosts.map((post) => (
                 <Link
                   key={post.slug}
-                  href={`/blog/${post.slug}`}
+                  href={`/${locale}/blog/${post.slug}`}
                   className="glass-card-interactive group w-[260px] flex-none snap-start p-4"
                 >
                   <div className="mb-2 font-mono text-[10px] text-slate-400 dark:text-slate-500">
