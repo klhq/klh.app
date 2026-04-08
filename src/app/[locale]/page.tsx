@@ -120,11 +120,6 @@ export default async function LandingPage({ params }: LandingPageProps) {
         {/* Link Pills */}
         <section className="animate-fade-in-up mb-8 flex flex-col gap-2.5">
           <LinkPill
-            href={`/${locale}/resume`}
-            icon={HiOutlineDocumentText}
-            label={dictionary.nav.resume}
-          />
-          <LinkPill
             href="/blog"
             icon={HiOutlinePencilSquare}
             label={dictionary.nav.blog}
@@ -144,6 +139,12 @@ export default async function LandingPage({ params }: LandingPageProps) {
               />
             );
           })}
+          <LinkPill
+            href={`/${locale}/resume`}
+            icon={HiOutlineDocumentText}
+            label={dictionary.nav.resume}
+            muted
+          />
         </section>
 
         {/* Blog Carousel */}
@@ -309,39 +310,62 @@ function LinkPill({
   icon: Icon,
   label,
   external,
+  muted,
 }: {
   href: string;
   icon: IconType;
   label: string;
   external?: boolean;
+  muted?: boolean;
 }) {
   const classes = clsx(
-    'group flex items-center gap-3 rounded-xl border px-4 py-3 transition-all',
-    'border-slate-200/60 bg-white/60 backdrop-blur-sm',
-    'hover:border-theme-500/40 hover:shadow-md hover:scale-[1.01]',
-    'dark:border-white/5 dark:bg-slate-900/40',
-    'dark:hover:border-theme-400/30'
+    'group flex items-center gap-3 rounded-xl border px-4 transition-all',
+    muted ? 'py-2' : 'py-3',
+    muted
+      ? [
+          'border-slate-200/30 bg-white/30',
+          'hover:border-slate-200/60 hover:bg-white/50',
+          'dark:border-white/3 dark:bg-slate-900/20',
+          'dark:hover:border-white/5 dark:hover:bg-slate-900/40',
+        ]
+      : [
+          'border-slate-200/60 bg-white/60 backdrop-blur-sm',
+          'hover:border-theme-500/40 hover:shadow-md hover:scale-[1.01]',
+          'dark:border-white/5 dark:bg-slate-900/40',
+          'dark:hover:border-theme-400/30',
+        ]
   );
 
   const content = (
     <>
       <Icon
         className={clsx(
-          'h-5 w-5 text-slate-400 transition-colors',
-          'group-hover:text-theme-600',
-          'dark:text-slate-500 dark:group-hover:text-theme-400'
+          'transition-colors',
+          muted ? 'h-4 w-4' : 'h-5 w-5',
+          muted
+            ? 'text-slate-300 group-hover:text-slate-400 dark:text-slate-600 dark:group-hover:text-slate-500'
+            : 'text-slate-400 group-hover:text-theme-600 dark:text-slate-500 dark:group-hover:text-theme-400'
         )}
       />
       <span
         className={clsx(
-          'flex-1 text-sm font-medium text-slate-700 transition-colors',
-          'group-hover:text-slate-900',
-          'dark:text-slate-300 dark:group-hover:text-slate-100'
+          'flex-1 font-medium transition-colors',
+          muted ? 'text-xs' : 'text-sm',
+          muted
+            ? 'text-slate-400 group-hover:text-slate-500 dark:text-slate-500 dark:group-hover:text-slate-400'
+            : 'text-slate-700 group-hover:text-slate-900 dark:text-slate-300 dark:group-hover:text-slate-100'
         )}
       >
         {label}
       </span>
-      <span className="text-slate-300 transition-transform group-hover:translate-x-0.5 dark:text-slate-600">
+      <span
+        className={clsx(
+          'transition-transform group-hover:translate-x-0.5',
+          muted
+            ? 'text-slate-200 dark:text-slate-700'
+            : 'text-slate-300 dark:text-slate-600'
+        )}
+      >
         →
       </span>
     </>
