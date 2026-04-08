@@ -17,14 +17,14 @@ export default async function BlogLayout({
         <Link
           href={`/${locale}`}
           className={clsx(
-            'flex size-10 items-center justify-center rounded-full border border-slate-200 bg-white/50 text-slate-600 shadow-md backdrop-blur-sm transition-all duration-200',
+            'group flex size-10 items-center justify-center rounded-full border border-slate-200 bg-white/50 text-slate-600 shadow-md backdrop-blur-sm transition-all duration-200',
             'hover:border-theme-600/50 hover:text-theme-600 hover:shadow-lg',
             'dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-300',
             'dark:hover:border-theme-400/50 dark:hover:text-theme-400'
           )}
           title="Back to home"
         >
-          ←
+          <span className="transition-transform duration-200 group-hover:-translate-x-0.5">←</span>
         </Link>
       </nav>
       <SettingsMenu />
