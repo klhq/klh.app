@@ -318,14 +318,6 @@ export default async function LandingPage({ params }: LandingPageProps) {
           </section>
         )}
 
-        {/* Contact */}
-        <section className="animate-fade-in-up text-center">
-          <p className="mb-3 text-sm text-slate-500 dark:text-slate-400">
-            {dictionary.contact.cta}
-          </p>
-          {email && <CopyEmailPill email={email} />}
-        </section>
-
         <FooterEasterEgg name={name} quotes={quotes} />
       </div>
     </div>
