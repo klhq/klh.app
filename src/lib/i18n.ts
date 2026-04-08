@@ -3,15 +3,12 @@ import path from 'node:path';
 import stripJsonComments from 'strip-json-comments';
 import type { ResumeData } from '@/types/resume';
 import type { LandingDictionary } from '@/types/landing';
+import { routing } from '@/i18n/routing';
 
-export const SUPPORTED_LOCALES = ['en', 'zh-TW', 'zh-CN'] as const;
-export const DEFAULT_LOCALE = 'en';
+export const SUPPORTED_LOCALES = routing.locales;
+export const DEFAULT_LOCALE = routing.defaultLocale;
 
 export type Locale = (typeof SUPPORTED_LOCALES)[number];
-
-export function isValidLocale(locale: string): locale is Locale {
-  return (SUPPORTED_LOCALES as readonly string[]).includes(locale);
-}
 
 const CONTENT_DIR = path.join(process.cwd(), 'src/content');
 

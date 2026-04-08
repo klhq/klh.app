@@ -1,9 +1,11 @@
 import { notFound } from 'next/navigation';
-import { SUPPORTED_LOCALES, isValidLocale } from '@/lib/i18n';
+import { hasLocale } from 'next-intl';
+import { setRequestLocale } from 'next-intl/server';
+import { routing } from '@/i18n/routing';
 import SettingsMenu from '@/components/SettingsMenu';
 
 export function generateStaticParams() {
-  return SUPPORTED_LOCALES.map((locale) => ({ locale }));
+  return routing.locales.map((locale) => ({ locale }));
 }
 
 export default async function LocaleLayout({
@@ -14,7 +16,8 @@ export default async function LocaleLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  if (!isValidLocale(locale)) notFound();
+  if (!hasLocale(routing.locales, locale)) notFound();
+  setRequestLocale(locale);
 
   return (
     <>
