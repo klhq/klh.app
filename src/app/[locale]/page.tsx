@@ -2,13 +2,18 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import clsx from 'clsx';
-import { AiFillGithub, AiFillLinkedin, AiOutlineMail } from 'react-icons/ai';
+import {
+  AiFillGithub,
+  AiFillLinkedin,
+  AiOutlineMail,
+} from 'react-icons/ai';
+import { FaBluesky, FaTelegram, FaXTwitter } from 'react-icons/fa6';
 import { HiOutlineDocumentText, HiOutlinePencilSquare } from 'react-icons/hi2';
+import { HiOutlineGlobeAlt } from 'react-icons/hi2';
 import { IconType } from 'react-icons';
 import {
   SUPPORTED_LOCALES,
   getDictionary,
-  getResumeData,
   type Locale,
 } from '@/lib/i18n';
 import { getAllPosts } from '@/lib/blog';
@@ -25,9 +30,14 @@ export async function generateMetadata({
   params,
 }: LandingPageProps): Promise<Metadata> {
   const { locale } = await params;
+  const gravatar = await fetchGravatarProfile();
+  const description =
+    gravatar?.description?.split('\n')[0] ??
+    'Software engineer building web & decentralized applications';
+
   return {
-    title: 'KL Hsu',
-    description: 'Software engineer building web & decentralized applications',
+    title: gravatar?.display_name ?? 'KL Hsu',
+    description,
     alternates: {
       languages: Object.fromEntries(
         SUPPORTED_LOCALES.map((l) => [l, `/${l}`])
@@ -37,24 +47,33 @@ export async function generateMetadata({
   };
 }
 
-const SOCIAL_ICONS: Record<string, IconType> = {
-  GitHub: AiFillGithub,
-  LinkedIn: AiFillLinkedin,
-  Email: AiOutlineMail,
+const SERVICE_ICONS: Record<string, IconType> = {
+  github: AiFillGithub,
+  linkedin: AiFillLinkedin,
+  bluesky: FaBluesky,
+  telegram: FaTelegram,
+  twitter: FaXTwitter,
+};
+
+const SERVICE_LABELS: Record<string, string> = {
+  github: 'GitHub',
+  linkedin: 'LinkedIn',
+  bluesky: 'Bluesky',
+  telegram: 'Telegram',
+  twitter: 'X (Twitter)',
 };
 
 export default async function LandingPage({ params }: LandingPageProps) {
   const { locale } = await params;
-  const [dictionary, resumeData, posts] = await Promise.all([
+  const [dictionary, gravatar, posts] = await Promise.all([
     getDictionary(locale as Locale),
-    getResumeData(locale as Locale),
+    fetchGravatarProfile(),
     getAllPosts(),
   ]);
 
-  const { profile, socialLinks } = resumeData;
-  const emailLink = socialLinks.find((l) => l.name === 'Email');
-  const email = emailLink?.link ?? '';
-  const gravatar = await fetchGravatarProfile();
+  const name = gravatar?.display_name ?? 'KL Hsu';
+  const email = gravatar?.contact_info?.email ?? '';
+  const verifiedAccounts = gravatar?.verified_accounts ?? [];
   const recentPosts = posts.slice(0, 4);
 
   return (
@@ -77,7 +96,7 @@ export default async function LandingPage({ params }: LandingPageProps) {
           {gravatar?.avatar_url && (
             <Image
               src={`${gravatar.avatar_url}?s=200`}
-              alt={gravatar.avatar_alt_text || profile.name}
+              alt={gravatar.avatar_alt_text || name}
               className={clsx(
                 'mx-auto mb-5 rounded-full ring-2 ring-white/80 shadow-lg',
                 'dark:ring-slate-800'
@@ -90,12 +109,22 @@ export default async function LandingPage({ params }: LandingPageProps) {
           )}
           <h1
             className={clsx(
-              'mb-2 text-2xl font-bold tracking-tight text-slate-900',
+              'mb-1 text-2xl font-bold tracking-tight text-slate-900',
               'dark:text-slate-50'
             )}
           >
-            {profile.name}
+            {name}
           </h1>
+          {gravatar?.job_title && (
+            <p className="mb-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+              {gravatar.job_title}
+            </p>
+          )}
+          {gravatar?.location && (
+            <p className="mb-4 font-mono text-[10px] text-slate-400 dark:text-slate-500">
+              📍 {gravatar.location}
+            </p>
+          )}
           <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">
             {dictionary.hero.tagline}
           </p>
@@ -124,21 +153,30 @@ export default async function LandingPage({ params }: LandingPageProps) {
             icon={HiOutlinePencilSquare}
             label={dictionary.nav.blog}
           />
-          {socialLinks.map((link) => {
-            const Icon = SOCIAL_ICONS[link.name];
-            if (!Icon) return null;
-            return (
-              <LinkPill
-                key={link.name}
-                href={
-                  link.name === 'Email' ? `mailto:${link.link}` : link.link
-                }
-                icon={Icon}
-                label={link.name === 'Email' ? link.link : link.name}
-                external={link.name !== 'Email'}
-              />
-            );
-          })}
+          {verifiedAccounts
+            .filter((a) => !a.is_hidden)
+            .map((account) => {
+              const Icon = SERVICE_ICONS[account.service_type];
+              return (
+                <LinkPill
+                  key={account.service_type}
+                  href={account.url}
+                  icon={Icon ?? HiOutlineGlobeAlt}
+                  label={
+                    SERVICE_LABELS[account.service_type] ??
+                    account.service_label
+                  }
+                  external
+                />
+              );
+            })}
+          {email && (
+            <LinkPill
+              href={`mailto:${email}`}
+              icon={AiOutlineMail}
+              label={email}
+            />
+          )}
           <LinkPill
             href={`/${locale}/resume`}
             icon={HiOutlineDocumentText}
@@ -166,14 +204,13 @@ export default async function LandingPage({ params }: LandingPageProps) {
                 →
               </Link>
             </div>
-            <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-2 snap-x snap-mandatory scrollbar-none">
+            <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 scrollbar-none">
               {recentPosts.map((post) => (
                 <Link
                   key={post.slug}
                   href={`/blog/${post.slug}`}
                   className={clsx(
-                    'group flex-none snap-start rounded-xl border p-4 transition-all',
-                    'w-[260px]',
+                    'group w-[260px] flex-none snap-start rounded-xl border p-4 transition-all',
                     'border-slate-200/60 bg-white/60 backdrop-blur-sm',
                     'hover:border-theme-500/40 hover:shadow-md',
                     'dark:border-white/5 dark:bg-slate-900/40',
@@ -297,7 +334,7 @@ export default async function LandingPage({ params }: LandingPageProps) {
         {/* Footer */}
         <footer className="mt-12 text-center">
           <p className="text-[10px] text-slate-300 dark:text-slate-700">
-            © {new Date().getFullYear()} {profile.name}
+            © {new Date().getFullYear()} {name}
           </p>
         </footer>
       </div>
@@ -391,6 +428,14 @@ function LinkPill({
   );
 }
 
+type GravatarVerifiedAccount = {
+  service_type: string;
+  service_label: string;
+  service_icon: string;
+  url: string;
+  is_hidden: boolean;
+};
+
 type GravatarProfile = {
   avatar_url?: string;
   avatar_alt_text?: string;
@@ -399,6 +444,8 @@ type GravatarProfile = {
   job_title?: string;
   location?: string;
   profile_url?: string;
+  verified_accounts?: GravatarVerifiedAccount[];
+  contact_info?: { email?: string };
 };
 
 const GRAVATAR_HASH =
