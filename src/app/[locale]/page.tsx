@@ -126,25 +126,20 @@ export default async function LandingPage({ params }: LandingPageProps) {
               📍 {gravatar.location}
             </p>
           )}
-          {gravatar?.description && (
+          {gravatar?.interests && gravatar.interests.length > 0 && (
             <div className="mx-auto mb-4 flex max-w-xs flex-wrap justify-center gap-1.5">
-              {gravatar.description
-                .split(/\n/)[1]
-                ?.split('|')
-                .map((interest) => interest.trim())
-                .filter(Boolean)
-                .map((interest) => (
-                  <span
-                    key={interest}
-                    className={clsx(
-                      'rounded-full px-2 py-0.5 text-[10px]',
-                      'bg-slate-100 text-slate-400',
-                      'dark:bg-white/5 dark:text-slate-500'
-                    )}
-                  >
-                    {interest}
-                  </span>
-                ))}
+              {gravatar.interests.map((interest) => (
+                <span
+                  key={interest.id}
+                  className={clsx(
+                    'rounded-full px-2 py-0.5 text-[10px]',
+                    'bg-slate-100 text-slate-400',
+                    'dark:bg-white/5 dark:text-slate-500'
+                  )}
+                >
+                  {interest.name}
+                </span>
+              ))}
             </div>
           )}
           <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">
@@ -493,6 +488,12 @@ type GravatarVerifiedAccount = {
   is_hidden: boolean;
 };
 
+type GravatarInterest = {
+  id: number;
+  name: string;
+  slug: string;
+};
+
 type GravatarProfile = {
   avatar_url?: string;
   avatar_alt_text?: string;
@@ -503,6 +504,7 @@ type GravatarProfile = {
   profile_url?: string;
   verified_accounts?: GravatarVerifiedAccount[];
   contact_info?: { email?: string };
+  interests?: GravatarInterest[];
 };
 
 const GRAVATAR_HASH =
@@ -510,9 +512,13 @@ const GRAVATAR_HASH =
 
 async function fetchGravatarProfile(): Promise<GravatarProfile | null> {
   try {
+    const headers: Record<string, string> = {};
+    if (process.env.GRAVATAR_API_TOKEN) {
+      headers.Authorization = `Bearer ${process.env.GRAVATAR_API_TOKEN}`;
+    }
     const res = await fetch(
       `https://api.gravatar.com/v3/profiles/${GRAVATAR_HASH}`,
-      { next: { revalidate: 3600 } }
+      { headers, next: { revalidate: 3600 } }
     );
     if (!res.ok) return null;
     return (await res.json()) as GravatarProfile;
