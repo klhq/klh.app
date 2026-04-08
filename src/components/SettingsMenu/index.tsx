@@ -23,6 +23,7 @@ interface SettingsMenuProps {
 
 const SettingsMenu: FC<SettingsMenuProps> = ({ locale }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [langOpen, setLangOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const showPrint = pathname.endsWith('/resume');
@@ -30,6 +31,7 @@ const SettingsMenu: FC<SettingsMenuProps> = ({ locale }) => {
   const toggleMenu = () => {
     const newState = !isOpen;
     setIsOpen(newState);
+    if (!newState) setLangOpen(false);
     sendGAEvent('event', 'settings_toggle', {
       state: newState ? 'open' : 'close',
     });
@@ -42,6 +44,7 @@ const SettingsMenu: FC<SettingsMenuProps> = ({ locale }) => {
         !menuRef.current.contains(event.target as Node)
       ) {
         setIsOpen(false);
+        setLangOpen(false);
       }
     };
 
@@ -58,43 +61,73 @@ const SettingsMenu: FC<SettingsMenuProps> = ({ locale }) => {
     <div ref={menuRef} className="fixed top-4 right-4 z-50 print:hidden">
       <div
         className={clsx(
-          'absolute top-12 right-0 flex origin-top-right flex-col gap-3 transition-all duration-300',
+          'absolute top-12 right-0 flex origin-top-right flex-col items-end gap-3 transition-all duration-300',
           isOpen
             ? 'translate-y-0 scale-100 opacity-100'
             : 'pointer-events-none -translate-y-4 scale-95 opacity-0'
         )}
       >
         <ThemeSwitcher />
-        {showPrint && <PrintButton />}
 
         {locale && (
-          <div
-            className={clsx(
-              'flex gap-1 rounded-full border border-slate-200 bg-white/50 p-1 shadow-md backdrop-blur-sm',
-              'dark:border-slate-700 dark:bg-slate-800/50'
-            )}
-          >
-            {LOCALES.map((l) => {
-              const targetPath = pathname.replace(`/${locale}`, `/${l}`);
-              const isActive = l === locale;
+          <div className="relative flex items-center justify-end gap-2">
+            {/* Expanded locale options */}
+            <div
+              className={clsx(
+                'flex gap-1.5 transition-all duration-200',
+                langOpen
+                  ? 'translate-x-0 scale-100 opacity-100'
+                  : 'pointer-events-none translate-x-4 scale-95 opacity-0'
+              )}
+            >
+              {LOCALES.filter((l) => l !== locale).map((l) => {
+                const targetPath = pathname.replace(
+                  `/${locale}`,
+                  `/${l}`
+                );
+                return (
+                  <Link
+                    key={l}
+                    href={targetPath}
+                    onClick={() => {
+                      sendGAEvent('event', 'locale_switch', { locale: l });
+                      setLangOpen(false);
+                    }}
+                    className={clsx(
+                      'glass-button group flex size-10 items-center justify-center rounded-full',
+                      'border border-slate-200 bg-white/50 text-slate-600 shadow-md backdrop-blur-sm',
+                      'transition-all duration-200',
+                      'hover:border-theme-600/50 hover:bg-theme-600/20 hover:text-theme-600',
+                      'hover:shadow-theme-600/20 hover:shadow-lg',
+                      'active:scale-95',
+                      'dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-300',
+                      'dark:hover:border-theme-400/50 dark:hover:bg-theme-400/30 dark:hover:text-theme-400'
+                    )}
+                    title={l}
+                    aria-label={`Switch to ${l}`}
+                  >
+                    <span className="text-xs font-bold">
+                      {LOCALE_LABELS[l]}
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
 
-              return (
-                <Link
-                  key={l}
-                  href={targetPath}
-                  className={clsx(
-                    'rounded-full px-2 py-1 text-xs font-medium transition-colors',
-                    isActive
-                      ? 'bg-theme-500/15 text-theme-600 dark:text-theme-400'
-                      : 'text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300'
-                  )}
-                >
-                  {LOCALE_LABELS[l]}
-                </Link>
-              );
-            })}
+            {/* Current locale button */}
+            <Button
+              onClick={() => setLangOpen(!langOpen)}
+              title={`Language: ${LOCALE_LABELS[locale]}`}
+              aria-label="Switch language"
+            >
+              <span className="text-xs font-bold transition-all duration-300 group-hover:scale-110 group-active:scale-90">
+                {LOCALE_LABELS[locale]}
+              </span>
+            </Button>
           </div>
         )}
+
+        {showPrint && <PrintButton />}
       </div>
 
       <Button
