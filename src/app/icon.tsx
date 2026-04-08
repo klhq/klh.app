@@ -32,29 +32,37 @@ export default function Icon({ id }: { id: string }) {
   const colors = getThemeColors();
   const isDark = id === 'dark';
 
-  const brandColor = isDark
+  const gradientFrom = isDark
     ? `rgb(${colors.primary400})`
-    : `rgb(${colors.primary600})`;
-
-  const textColor = '#f8fafc'; // slate-50
+    : `rgb(${colors.primary500})`;
+  const gradientTo = isDark
+    ? `rgb(${colors.primary600})`
+    : `rgb(${colors.primary400})`;
 
   return new ImageResponse(
     (
       <div
         style={{
-          fontSize: 20,
-          background: brandColor,
           width: '100%',
           height: '100%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: textColor,
+          background: `linear-gradient(135deg, ${gradientFrom}, ${gradientTo})`,
           borderRadius: 8,
-          fontWeight: 700,
         }}
       >
-        L
+        <span
+          style={{
+            fontSize: 20,
+            fontWeight: 800,
+            color: '#ffffff',
+            letterSpacing: -1,
+            lineHeight: 1,
+          }}
+        >
+          K
+        </span>
       </div>
     ),
     {
