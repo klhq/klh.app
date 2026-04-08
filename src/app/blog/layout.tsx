@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers';
 import Link from 'next/link';
 import clsx from 'clsx';
+import SettingsMenu from '@/components/SettingsMenu';
 
 export default async function BlogLayout({
   children,
@@ -26,6 +27,7 @@ export default async function BlogLayout({
           ←
         </Link>
       </nav>
+      <SettingsMenu />
       {children}
     </div>
   );
