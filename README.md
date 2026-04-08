@@ -22,7 +22,7 @@ Content is fetched from a private GitHub repo at build time. Identity data (name
 - **Styling:** Tailwind CSS v4, `@tailwindcss/typography`
 - **Theme:** [`@klh-app/theme`](https://www.npmjs.com/package/@klh-app/theme) (system/light/dark)
 - **Blog:** MDX via `next-mdx-remote`, syntax highlighting with Shiki
-- **i18n:** `en`, `zh-TW`, `zh-CN` (landing + resume only, no library)
+- **i18n:** `en`, `zh-TW`, `zh-CN` via `next-intl` (routing + locale detection)
 - **Deployment:** Vercel (static), Cloudflare DNS
 - **Analytics:** Google Analytics via `@next/third-parties`
 
@@ -33,8 +33,8 @@ Content is fetched from a private GitHub repo at build time. Identity data (name
 | `/` | Redirects to `/{locale}` via proxy |
 | `/{locale}` | Landing page hub |
 | `/{locale}/resume` | Resume |
-| `/blog` | Blog list (English only) |
-| `/blog/{slug}` | Blog post |
+| `/{locale}/blog` | Blog list |
+| `/{locale}/blog/{slug}` | Blog post |
 
 Supported locales: `en`, `zh-TW`, `zh-CN`. Locale detection via `Accept-Language` header.
 
@@ -79,6 +79,8 @@ Optional:
 
 | Variable | Description |
 |---|---|
+| `GRAVATAR_HASH` | SHA256 hash of Gravatar email |
+| `GRAVATAR_API_TOKEN` | Gravatar API token (enables interests) |
 | `NEXT_PUBLIC_GA_ID` | Google Analytics measurement ID |
 | `PRINT_EMAIL` | Email override for resume PDF export |
 | `NEXT_PUBLIC_THEME_PRESET` | Theme preset (`default`, `meta`, `spotify`, etc.) |
@@ -94,8 +96,9 @@ klh-content/
   resume/
     en/data.jsonc        # Resume data per locale
     data.schema.json     # Shared schema
+  quotes.json            # Footer easter egg quotes
   blog/
-    hello-world.mdx      # Blog posts (English only)
+    hello-world.mdx      # Blog posts
 ```
 
 Push to `klh-content` triggers a Vercel deploy hook.
