@@ -127,9 +127,25 @@ export default async function LandingPage({ params }: LandingPageProps) {
             </p>
           )}
           {gravatar?.description && (
-            <p className="mx-auto mb-4 max-w-xs text-xs leading-relaxed text-slate-400 dark:text-slate-500">
-              {gravatar.description}
-            </p>
+            <div className="mx-auto mb-4 flex max-w-xs flex-wrap justify-center gap-1.5">
+              {gravatar.description
+                .split(/\n/)[1]
+                ?.split('|')
+                .map((interest) => interest.trim())
+                .filter(Boolean)
+                .map((interest) => (
+                  <span
+                    key={interest}
+                    className={clsx(
+                      'rounded-full px-2 py-0.5 text-[10px]',
+                      'bg-slate-100 text-slate-400',
+                      'dark:bg-white/5 dark:text-slate-500'
+                    )}
+                  >
+                    {interest}
+                  </span>
+                ))}
+            </div>
           )}
           <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">
             {dictionary.hero.tagline}
