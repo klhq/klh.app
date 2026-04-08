@@ -1,16 +1,38 @@
+import type { Metadata } from 'next';
 import { FC } from 'react';
 import clsx from 'clsx';
 import Link from 'next/link';
 import SettingsMenu from '@/components/resume/SettingMenu';
 import Bios from '@/components/resume/Bios';
-import type { ResumeData } from '@/types/resume';
-import resumeData from '../../data.jsonc';
 import Sidebar from '@/components/resume/Sidebar';
 import TimelineList from '@/components/resume/TimelineList';
 import EngagementTracker from '@/components/resume/EngagementTracker';
+import { SUPPORTED_LOCALES, getResumeData, type Locale } from '@/lib/i18n';
 
-const { profile, socialLinks, skillSet, workExperience, education } =
-  resumeData as unknown as ResumeData;
+interface ResumePageProps {
+  params: Promise<{ locale: string }>;
+}
+
+export function generateStaticParams() {
+  return SUPPORTED_LOCALES.map((locale) => ({ locale }));
+}
+
+export async function generateMetadata({
+  params,
+}: ResumePageProps): Promise<Metadata> {
+  const { locale } = await params;
+  return {
+    title: `Resume — KL Hsu`,
+    alternates: {
+      languages: Object.fromEntries(
+        SUPPORTED_LOCALES.map((l) => [l, `/${l}/resume`])
+      ),
+    },
+    openGraph: {
+      locale,
+    },
+  };
+}
 
 const COMPANY_NAME_MAP = {
   linker: 'Linker Networks Inc.',
@@ -28,7 +50,11 @@ const BackgroundBlobs: FC = () => (
   </div>
 );
 
-const ResumePage: FC = () => {
+export default async function ResumePage({ params }: ResumePageProps) {
+  const { locale } = await params;
+  const { profile, socialLinks, skillSet, workExperience, education } =
+    await getResumeData(locale as Locale);
+
   return (
     <div
       className={clsx(
@@ -105,6 +131,4 @@ const ResumePage: FC = () => {
       <EngagementTracker />
     </div>
   );
-};
-
-export default ResumePage;
+}

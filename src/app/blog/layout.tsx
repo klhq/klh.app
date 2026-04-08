@@ -1,16 +1,20 @@
+import { cookies } from 'next/headers';
 import Link from 'next/link';
 import clsx from 'clsx';
 
-export default function BlogLayout({
+export default async function BlogLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const cookieStore = await cookies();
+  const locale = cookieStore.get('NEXT_LOCALE')?.value ?? 'en';
+
   return (
     <div className="relative">
       <nav className="fixed top-4 right-4 z-50">
         <Link
-          href="/resume"
+          href={`/${locale}/resume`}
           className={clsx(
             'rounded-full border border-slate-200 bg-white/50 px-4 py-2 text-sm font-medium text-slate-600 shadow-md backdrop-blur-sm transition-all duration-200',
             'hover:border-theme-600/50 hover:text-theme-600 hover:shadow-lg',

@@ -53,6 +53,8 @@ const GITHUB_HEADERS = (token: string) => ({
   'X-GitHub-Api-Version': '2022-11-28',
 });
 
+const SUPPORTED_LOCALES = ['en', 'zh-TW', 'zh-CN'];
+
 async function fetchFile(
   repo: string,
   filePath: string,
@@ -82,16 +84,65 @@ async function fetchResume(
   ref: string,
   token: string
 ): Promise<void> {
-  const filePath = getEnv('CONTENT_RESUME_PATH') ?? 'resume/data.jsonc';
-  const outPath = 'src/data.jsonc';
+  const results = await Promise.allSettled(
+    SUPPORTED_LOCALES.map(async (locale) => {
+      const remotePath = `resume/${locale}/data.jsonc`;
+      const outDir = `src/content/resume/${locale}`;
+      const outPath = path.join(outDir, 'data.jsonc');
 
-  const decoded = await fetchFile(repo, filePath, ref, token);
-  const finalJsonc = coerceSchemaPath(decoded);
+      try {
+        const decoded = await fetchFile(repo, remotePath, ref, token);
+        const finalJsonc = coerceSchemaPath(decoded);
+        await mkdir(outDir, { recursive: true });
+        await writeFile(outPath, finalJsonc, 'utf8');
+        console.info(`[fetch] Resume (${locale}): ${outPath}`);
+        return locale;
+      } catch {
+        console.info(`[fetch] Resume (${locale}): not found, skipping.`);
+        return null;
+      }
+    })
+  );
 
-  await mkdir(path.dirname(outPath), { recursive: true });
-  await writeFile(outPath, finalJsonc, 'utf8');
+  const succeeded = results.filter(
+    (r) => r.status === 'fulfilled' && r.value !== null
+  );
+  if (succeeded.length === 0) {
+    throw new Error('[fetch] No resume data found for any locale.');
+  }
+}
 
-  console.info(`[fetch] Resume: ${outPath} from ${repo}/${filePath} @ ${ref}`);
+async function fetchLanding(
+  repo: string,
+  ref: string,
+  token: string
+): Promise<void> {
+  const outDir = 'src/content/landing';
+  await mkdir(outDir, { recursive: true });
+
+  const results = await Promise.allSettled(
+    SUPPORTED_LOCALES.map(async (locale) => {
+      const remotePath = `landing/${locale}.json`;
+      const outPath = path.join(outDir, `${locale}.json`);
+
+      try {
+        const decoded = await fetchFile(repo, remotePath, ref, token);
+        await writeFile(outPath, decoded, 'utf8');
+        console.info(`[fetch] Landing (${locale}): ${outPath}`);
+        return locale;
+      } catch {
+        console.info(`[fetch] Landing (${locale}): not found, skipping.`);
+        return null;
+      }
+    })
+  );
+
+  const succeeded = results.filter(
+    (r) => r.status === 'fulfilled' && r.value !== null
+  );
+  if (succeeded.length === 0) {
+    throw new Error('[fetch] No landing data found for any locale.');
+  }
 }
 
 async function fetchBlogPosts(
@@ -164,9 +215,10 @@ async function main(): Promise<void> {
   const token = getEnv('CONTENT_GITHUB_TOKEN');
 
   if (!repo) {
-    const hasLocalResume = await fileExists('src/data.jsonc');
+    const hasLocalResume = await fileExists('src/content/resume');
+    const hasLocalLanding = await fileExists('src/content/landing');
     const hasLocalBlog = await fileExists('src/content/blog');
-    if (hasLocalResume || hasLocalBlog) {
+    if (hasLocalResume || hasLocalLanding || hasLocalBlog) {
       console.info('[fetch] CONTENT_REPO not set; using local content.');
       return;
     }
@@ -185,6 +237,7 @@ async function main(): Promise<void> {
 
   await Promise.all([
     fetchResume(repo, ref, token),
+    fetchLanding(repo, ref, token),
     fetchBlogPosts(repo, ref, token),
   ]);
 }

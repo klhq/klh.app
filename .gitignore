@@ -28,5 +28,4 @@ yarn-error.log*
 next-env.d.ts
 
 # remote-fetched content (do not commit)
-src/data.jsonc
 src/content/
