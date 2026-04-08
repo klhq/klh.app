@@ -47,7 +47,7 @@ interface MdxContentProps {
 }
 
 const MdxContent: FC<MdxContentProps> = ({ source }) => (
-  <article className="prose prose-slate max-w-none dark:prose-invert prose-headings:tracking-tight prose-a:text-theme-600 dark:prose-a:text-theme-400 prose-code:before:content-none prose-code:after:content-none">
+  <article className="prose prose-sm prose-slate max-w-none dark:prose-invert prose-headings:tracking-tight prose-a:text-theme-600 dark:prose-a:text-theme-400 prose-code:before:content-none prose-code:after:content-none">
     <MDXRemote
       source={source}
       components={components}

@@ -41,56 +41,62 @@ export default async function PostPage({ params }: PostPageProps) {
   return (
     <div
       className={clsx(
-        'mx-auto min-h-screen max-w-3xl px-6 py-12',
-        'md:px-8 md:py-16'
+        'relative min-h-screen bg-slate-50 px-4 py-16',
+        'dark:bg-slate-950'
       )}
     >
-      <Link
-        href="/blog"
-        className={clsx(
-          'mb-8 inline-flex items-center gap-1 text-sm text-slate-500 transition-colors',
-          'hover:text-theme-600',
-          'dark:text-slate-400 dark:hover:text-theme-400'
-        )}
-      >
-        &larr; Back to blog
-      </Link>
-
-      <header className="mb-8">
-        <div className="mb-2 font-mono text-xs text-slate-400 dark:text-slate-500">
-          {new Date(post.date).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          })}
-        </div>
-        <h1
+      <div className="mx-auto w-full max-w-md">
+        <Link
+          href="/blog"
           className={clsx(
-            'mb-4 text-3xl font-extrabold tracking-tighter text-slate-900',
-            'dark:text-slate-50',
-            'sm:text-4xl'
+            'group mb-8 inline-flex items-center gap-1 text-sm text-slate-400 transition-colors',
+            'hover:text-theme-600',
+            'dark:text-slate-500 dark:hover:text-theme-400'
           )}
         >
-          {post.title}
-        </h1>
-        <div className="flex flex-wrap gap-1.5">
-          {post.tags.map((tag) => (
-            <Link
-              key={tag}
-              href={`/blog?tag=${encodeURIComponent(tag)}`}
-              className={clsx(
-                'rounded-md border border-slate-200 px-2 py-0.5 font-mono text-xs text-slate-500 transition-colors',
-                'hover:border-theme-500/50 hover:text-theme-600',
-                'dark:border-white/10 dark:text-slate-400 dark:hover:text-theme-400'
-              )}
-            >
-              {tag}
-            </Link>
-          ))}
-        </div>
-      </header>
+          <span className="transition-transform duration-200 group-hover:-translate-x-0.5">
+            ←
+          </span>
+          Back to blog
+        </Link>
 
-      <MdxContent source={post.content} />
+        <header className="animate-fade-in-down mb-8">
+          <div className="mb-2 font-mono text-[10px] text-slate-400 dark:text-slate-500">
+            {new Date(post.date).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}
+          </div>
+          <h1
+            className={clsx(
+              'mb-4 text-2xl font-bold tracking-tight text-slate-900',
+              'dark:text-slate-50'
+            )}
+          >
+            {post.title}
+          </h1>
+          <div className="flex flex-wrap gap-1.5">
+            {post.tags.map((tag) => (
+              <Link
+                key={tag}
+                href={`/blog?tag=${encodeURIComponent(tag)}`}
+                className={clsx(
+                  'rounded-md px-1.5 py-0.5 font-mono text-[10px] transition-colors',
+                  'bg-slate-100 text-slate-500 hover:text-theme-600',
+                  'dark:bg-white/5 dark:text-slate-400 dark:hover:text-theme-400'
+                )}
+              >
+                {tag}
+              </Link>
+            ))}
+          </div>
+        </header>
+
+        <div className="animate-fade-in-up">
+          <MdxContent source={post.content} />
+        </div>
+      </div>
     </div>
   );
 }

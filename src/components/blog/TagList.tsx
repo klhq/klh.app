@@ -9,14 +9,14 @@ interface TagListProps {
 }
 
 const TagList: FC<TagListProps> = ({ tags, activeTag, counts }) => (
-  <div className="flex flex-wrap gap-2">
+  <div className="flex flex-wrap gap-1.5">
     {activeTag && (
       <Link
         href="/blog"
         className={clsx(
-          'rounded-md border border-slate-200 px-2.5 py-1 font-mono text-xs transition-colors',
-          'hover:bg-slate-100',
-          'dark:border-white/10 dark:hover:bg-slate-800'
+          'rounded-md px-2 py-0.5 font-mono text-[10px] transition-colors',
+          'bg-slate-100 text-slate-500 hover:text-slate-700',
+          'dark:bg-white/5 dark:text-slate-400 dark:hover:text-slate-200'
         )}
       >
         All
@@ -29,10 +29,10 @@ const TagList: FC<TagListProps> = ({ tags, activeTag, counts }) => (
           key={tag}
           href={isActive ? '/blog' : `/blog?tag=${encodeURIComponent(tag)}`}
           className={clsx(
-            'rounded-md border px-2.5 py-1 font-mono text-xs transition-colors',
+            'rounded-md px-2 py-0.5 font-mono text-[10px] transition-colors',
             isActive
-              ? 'border-theme-500/50 bg-theme-600/10 text-theme-600 dark:bg-theme-400/20 dark:text-theme-400'
-              : 'border-slate-200 hover:bg-slate-100 dark:border-white/10 dark:hover:bg-slate-800'
+              ? 'bg-theme-500/15 text-theme-600 dark:text-theme-400'
+              : 'bg-slate-100 text-slate-500 hover:text-slate-700 dark:bg-white/5 dark:text-slate-400 dark:hover:text-slate-200'
           )}
         >
           {tag}

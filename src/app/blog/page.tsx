@@ -28,42 +28,43 @@ export default async function BlogPage({
   return (
     <div
       className={clsx(
-        'mx-auto min-h-screen max-w-3xl px-6 py-12',
-        'md:px-8 md:py-16'
+        'relative min-h-screen bg-slate-50 px-4 py-16',
+        'dark:bg-slate-950'
       )}
     >
-      <header className="mb-12">
-        <h1
-          className={clsx(
-            'mb-2 text-3xl font-extrabold tracking-tighter text-slate-900',
-            'dark:text-slate-50',
-            'sm:text-4xl'
-          )}
-        >
-          Blog
-        </h1>
-        <p className="text-base text-slate-500 dark:text-slate-400">
-          Project showcases and technical writing
-        </p>
-      </header>
+      <div className="mx-auto w-full max-w-md">
+        <header className="animate-fade-in-down mb-8">
+          <h2
+            className={clsx(
+              'mb-3 text-xs font-semibold tracking-wider text-slate-400 uppercase',
+              'dark:text-slate-500'
+            )}
+          >
+            Blog
+          </h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            Project showcases and technical writing
+          </p>
+        </header>
 
-      {sortedTags.length > 0 && (
-        <div className="mb-8">
-          <TagList tags={sortedTags} activeTag={tag} counts={tagCounts} />
-        </div>
-      )}
+        {sortedTags.length > 0 && (
+          <div className="animate-fade-in-up mb-6">
+            <TagList tags={sortedTags} activeTag={tag} counts={tagCounts} />
+          </div>
+        )}
 
-      {filteredPosts.length === 0 ? (
-        <p className="text-slate-500 dark:text-slate-400">
-          No posts found{tag ? ` for tag "${tag}"` : ''}.
-        </p>
-      ) : (
-        <div className="flex flex-col gap-4">
-          {filteredPosts.map((post) => (
-            <PostCard key={post.slug} post={post} />
-          ))}
-        </div>
-      )}
+        {filteredPosts.length === 0 ? (
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            No posts found{tag ? ` for tag "${tag}"` : ''}.
+          </p>
+        ) : (
+          <div className="animate-fade-in-up flex flex-col gap-3">
+            {filteredPosts.map((post) => (
+              <PostCard key={post.slug} post={post} />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

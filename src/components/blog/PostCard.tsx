@@ -11,37 +11,47 @@ const PostCard: FC<PostCardProps> = ({ post }) => (
   <Link
     href={`/blog/${post.slug}`}
     className={clsx(
-      'group block rounded-lg border border-slate-200 p-6 transition-all duration-200',
-      'hover:shadow-theme-600/10 hover:scale-[1.01] hover:border-slate-300 hover:shadow-lg',
-      'dark:border-white/5 dark:bg-slate-800/30 dark:hover:border-white/10'
+      'group rounded-xl border p-5 transition-all duration-200',
+      'border-slate-200/60 bg-white/60 backdrop-blur-sm',
+      'hover:border-theme-500/40 hover:shadow-md',
+      'dark:border-white/5 dark:bg-slate-900/40',
+      'dark:hover:border-theme-400/30'
     )}
   >
-    <div className="mb-2 font-mono text-xs text-slate-400 dark:text-slate-500">
-      {new Date(post.date).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      })}
+    <div className="flex items-start justify-between">
+      <div>
+        <div className="mb-2 font-mono text-[10px] text-slate-400 dark:text-slate-500">
+          {new Date(post.date).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+          })}
+        </div>
+        <h2
+          className={clsx(
+            'mb-1 text-sm font-semibold text-slate-900 transition-colors',
+            'group-hover:text-theme-600',
+            'dark:text-slate-100 dark:group-hover:text-theme-400'
+          )}
+        >
+          {post.title}
+        </h2>
+        <p className="mb-3 text-xs text-slate-500 dark:text-slate-400">
+          {post.description}
+        </p>
+      </div>
+      <span className="mt-2 text-slate-300 transition-transform duration-200 group-hover:translate-x-0.5 dark:text-slate-600">
+        →
+      </span>
     </div>
-    <h2
-      className={clsx(
-        'mb-2 text-lg font-bold tracking-tight text-slate-800',
-        'group-hover:text-theme-600',
-        'dark:text-slate-100 dark:group-hover:text-theme-400'
-      )}
-    >
-      {post.title}
-    </h2>
-    <p className="mb-4 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
-      {post.description}
-    </p>
     <div className="flex flex-wrap gap-1.5">
       {post.tags.map((tag) => (
         <span
           key={tag}
           className={clsx(
-            'rounded-md border border-slate-200 px-2 py-0.5 font-mono text-xs text-slate-500',
-            'dark:border-white/10 dark:text-slate-400'
+            'rounded-md px-1.5 py-0.5 font-mono text-[10px]',
+            'bg-slate-100 text-slate-500',
+            'dark:bg-white/5 dark:text-slate-400'
           )}
         >
           {tag}
