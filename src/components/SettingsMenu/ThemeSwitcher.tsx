@@ -1,7 +1,7 @@
 'use client';
 import { FC } from 'react';
 import { MdDarkMode, MdLightMode, MdContrast } from 'react-icons/md';
-import { sendGAEvent } from '@next/third-parties/google';
+import { trackEvent } from '@/lib/analytics';
 import { useTheme } from '@klh-app/theme';
 import Button from './Button';
 import clsx from 'clsx';
@@ -24,7 +24,7 @@ const ThemeSwitcher: FC = () => {
   const handleToggle = () => {
     const next = CYCLE[theme] ?? 'system';
     setTheme(next);
-    sendGAEvent('event', 'theme_toggle', { theme: next });
+    trackEvent('theme_toggle', { theme: next });
   };
 
   const iconClasses =

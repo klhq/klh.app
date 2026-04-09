@@ -3,7 +3,7 @@ import { FC, useState, useRef, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { MdSettings, MdClose } from 'react-icons/md';
-import { sendGAEvent } from '@next/third-parties/google';
+import { trackEvent } from '@/lib/analytics';
 import ThemeSwitcher from './ThemeSwitcher';
 import PrintButton from './PrintButton';
 import Button from './Button';
@@ -32,7 +32,7 @@ const SettingsMenu: FC<SettingsMenuProps> = ({ locale }) => {
     const newState = !isOpen;
     setIsOpen(newState);
     if (!newState) setLangOpen(false);
-    sendGAEvent('event', 'settings_toggle', {
+    trackEvent('settings_toggle', {
       state: newState ? 'open' : 'close',
     });
   };
@@ -87,7 +87,7 @@ const SettingsMenu: FC<SettingsMenuProps> = ({ locale }) => {
                     key={l}
                     href={targetPath}
                     onClick={() => {
-                      sendGAEvent('event', 'locale_switch', { locale: l });
+                      trackEvent('locale_switch', { locale: l });
                       setLangOpen(false);
                     }}
                     className="glass-button group"

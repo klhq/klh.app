@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { sendGAEvent } from '@next/third-parties/google';
+import { trackEvent } from '@/lib/analytics';
 
 const SCROLL_THRESHOLDS = [25, 50, 75, 100];
 const TIME_THRESHOLDS = [15, 30, 60, 180];
@@ -22,7 +22,7 @@ const EngagementTracker = () => {
       for (const threshold of SCROLL_THRESHOLDS) {
         if (percent >= threshold && !firedScrollDepths.has(threshold)) {
           firedScrollDepths.add(threshold);
-          sendGAEvent('event', 'scroll_depth', { percent: threshold });
+          trackEvent('scroll_depth', { percent: threshold });
         }
       }
     };
@@ -33,7 +33,7 @@ const EngagementTracker = () => {
       for (const threshold of TIME_THRESHOLDS) {
         if (elapsed >= threshold && !firedTimeThresholds.has(threshold)) {
           firedTimeThresholds.add(threshold);
-          sendGAEvent('event', 'time_on_page', { seconds: threshold });
+          trackEvent('time_on_page', { seconds: threshold });
         }
       }
 

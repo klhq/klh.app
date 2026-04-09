@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import { Inter, JetBrains_Mono } from 'next/font/google';
-import { GoogleAnalytics } from '@next/third-parties/google';
 import { ThemeProvider, ThemeScript } from '@klh-app/theme';
 import './globals.css';
 import { getThemeCSSVariables } from '@/theme';
@@ -37,8 +37,12 @@ export default function RootLayout({
         <ThemeProvider attribute="class" value={{ dark: 'dark' }}>
           {children}
         </ThemeProvider>
-        {process.env.NEXT_PUBLIC_GA_ID && (
-          <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
+        {process.env.NEXT_PUBLIC_UMAMI_URL && process.env.NEXT_PUBLIC_UMAMI_ID && (
+          <Script
+            defer
+            src={process.env.NEXT_PUBLIC_UMAMI_URL}
+            data-website-id={process.env.NEXT_PUBLIC_UMAMI_ID}
+          />
         )}
       </body>
     </html>

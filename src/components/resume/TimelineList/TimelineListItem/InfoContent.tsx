@@ -1,11 +1,11 @@
 'use client';
 import { FC } from 'react';
 import type { Content } from '@/types/resume';
-import { sendGAEvent } from '@next/third-parties/google';
+import { trackEvent } from '@/lib/analytics';
 import { BsDot } from 'react-icons/bs';
 
 const onInfoLinkClick = (url: string) => {
-  sendGAEvent('event', 'info_link_click', { url });
+  trackEvent('info_link_click', { url });
 };
 
 const InfoContent: FC<Content> = ({ title, url, details }) => {

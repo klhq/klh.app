@@ -2,7 +2,7 @@
 
 import { FC } from 'react';
 import { MdPrint } from 'react-icons/md';
-import { sendGAEvent } from '@next/third-parties/google';
+import { trackEvent } from '@/lib/analytics';
 import Button from './Button';
 
 const relock = () => {
@@ -12,7 +12,7 @@ const relock = () => {
 
 const PrintButton: FC = () => {
   const handlePrint = () => {
-    sendGAEvent('event', 'print_resume', {});
+    trackEvent('print_resume');
     document.documentElement.classList.remove('print:hidden');
 
     window.addEventListener('afterprint', relock);

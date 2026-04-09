@@ -3,7 +3,7 @@ import { FC } from 'react';
 import { AiFillGithub, AiFillLinkedin, AiOutlineMail } from 'react-icons/ai';
 import { IconType } from 'react-icons';
 import type { SocialLinkType, SocialLink } from '@/types/resume';
-import { sendGAEvent } from '@next/third-parties/google';
+import { trackEvent } from '@/lib/analytics';
 import clsx from 'clsx';
 
 const SOCIAL_LINK_ICON_MAP: Record<SocialLinkType, IconType> = {
@@ -13,7 +13,7 @@ const SOCIAL_LINK_ICON_MAP: Record<SocialLinkType, IconType> = {
 } as const;
 
 const onLinkClick = (linkType: SocialLinkType) => {
-  sendGAEvent('event', 'social_link_click', { link_type: linkType });
+  trackEvent('social_link_click', { link_type: linkType });
 };
 
 const formatDisplayLink = (link: string, name: SocialLinkType) => {

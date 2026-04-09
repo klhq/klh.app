@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { AiOutlineMail, AiOutlineCheck } from 'react-icons/ai';
+import { trackEvent } from '@/lib/analytics';
 import clsx from 'clsx';
 
 export default function CopyEmailPill({ email }: { email: string }) {
@@ -9,6 +10,7 @@ export default function CopyEmailPill({ email }: { email: string }) {
 
   const handleClick = async () => {
     await navigator.clipboard.writeText(email);
+    trackEvent('email_copy');
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
