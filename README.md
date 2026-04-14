@@ -81,7 +81,6 @@ Optional:
 |---|---|
 | `GRAVATAR_HASH` | SHA256 hash of Gravatar email |
 | `GRAVATAR_API_TOKEN` | Gravatar API token (enables interests) |
-| `NEXT_PUBLIC_GA_ID` | Google Analytics measurement ID |
 | `PRINT_EMAIL` | Email override for resume PDF export |
 | `NEXT_PUBLIC_THEME_PRESET` | Theme preset (`default`, `meta`, `spotify`, etc.) |
 
