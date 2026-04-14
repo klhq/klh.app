@@ -62,7 +62,7 @@ export default async function PostPage({ params }: PostPageProps) {
 
         <header className="animate-fade-in-down mb-8">
           <div className="mb-2 font-mono text-[10px] text-slate-400 dark:text-slate-500">
-            {new Date(post.date).toLocaleDateString('en-US', {
+            {new Date(post.date).toLocaleDateString(locale, {
               year: 'numeric',
               month: 'long',
               day: 'numeric',

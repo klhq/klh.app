@@ -13,7 +13,7 @@ const PostCard: FC<PostCardProps> = ({ post, locale }) => (
     <div className="flex items-start justify-between">
       <div>
         <div className="mb-2 font-mono text-[10px] text-slate-400 dark:text-slate-500">
-          {new Date(post.date).toLocaleDateString('en-US', {
+          {new Date(post.date).toLocaleDateString(locale, {
             month: 'short',
             day: 'numeric',
             year: 'numeric',
