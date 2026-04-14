@@ -2,7 +2,7 @@
 import { FC } from 'react';
 import { MdDarkMode, MdLightMode, MdContrast } from 'react-icons/md';
 import { trackEvent } from '@/lib/analytics';
-import { useTheme } from '@klh-app/theme';
+import { useTheme } from '@klh-app/use-theme';
 import Button from './Button';
 import clsx from 'clsx';
 
