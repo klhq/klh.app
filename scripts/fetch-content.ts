@@ -1,6 +1,6 @@
 import { mkdir, stat, writeFile, rm } from 'node:fs/promises';
 import path from 'node:path';
-import stripJsonComments from 'strip-json-comments';
+import { parse as parseJsonc, printParseErrorCode } from 'jsonc-parser';
 
 type GitHubContentsResponse = {
   type: string;
@@ -103,7 +103,17 @@ function parseJsoncObject(
   content: string,
   label: string
 ): Record<string, unknown> {
-  const parsed = JSON.parse(stripJsonComments(content)) as unknown;
+  const errors: { error: number; offset: number; length: number }[] = [];
+  const parsed = parseJsonc(content, errors, {
+    allowTrailingComma: true,
+    disallowComments: false,
+  }) as unknown;
+  if (errors.length > 0) {
+    const summary = errors
+      .map((e) => `${printParseErrorCode(e.error)} at offset ${e.offset}`)
+      .join('; ');
+    throw new Error(`[fetch] ${label} is not valid JSONC: ${summary}`);
+  }
   if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
     throw new Error(`[fetch] ${label} must be a JSON object.`);
   }
@@ -262,7 +272,16 @@ async function fetchResume(
     (r) => r.status === 'fulfilled' && r.value !== null
   );
   if (succeeded.length === 0) {
-    throw new Error('[fetch] No resume data found for any locale.');
+    const reasons = results
+      .filter((r) => r.status === 'rejected')
+      .map((r) => (r as PromiseRejectedResult).reason)
+      .map((reason) =>
+        reason instanceof Error ? reason.message : String(reason)
+      );
+    const detail = reasons.length > 0 ? `\n  - ${reasons.join('\n  - ')}` : '';
+    throw new Error(
+      `[fetch] No resume data found for any locale.${detail}`
+    );
   }
 }
 
