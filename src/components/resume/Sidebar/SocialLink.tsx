@@ -12,8 +12,8 @@ const SOCIAL_LINK_ICON_MAP: Record<SocialLinkType, IconType> = {
   GitHub: AiFillGithub,
 } as const;
 
-const onLinkClick = (linkType: SocialLinkType) => {
-  trackEvent('social_link_click', { link_type: linkType });
+const onLinkClick = (url: string, label: SocialLinkType) => {
+  trackEvent('outbound_click', { source: 'social', url, label });
 };
 
 const formatDisplayLink = (link: string, name: SocialLinkType) => {
@@ -28,6 +28,10 @@ interface SocialLinkProps {
 const SocialLinkComponent: FC<SocialLinkProps> = ({ socialLink, printEmail }) => {
   const Icon = SOCIAL_LINK_ICON_MAP[socialLink.name];
   const isPrintEmailOverride = socialLink.name === 'Email' && printEmail;
+  const href =
+    socialLink.name === 'Email'
+      ? `mailto:${socialLink.link}`
+      : socialLink.link;
   return (
     <a
       key={socialLink.name}
@@ -37,14 +41,10 @@ const SocialLinkComponent: FC<SocialLinkProps> = ({ socialLink, printEmail }) =>
         'print:text-theme-600',
         'dark:hover:text-theme-400 dark:text-slate-400'
       )}
-      href={
-        socialLink.name === 'Email'
-          ? `mailto:${socialLink.link}`
-          : socialLink.link
-      }
+      href={href}
       target="_blank"
       rel="noopener noreferrer"
-      onClick={() => onLinkClick(socialLink.name)}
+      onClick={() => onLinkClick(href, socialLink.name)}
     >
       <div
         className={clsx(

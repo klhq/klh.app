@@ -55,7 +55,7 @@ export default function LinkPill({
   );
 
   const handleClick = () => {
-    trackEvent('link_pill_click', { label, href });
+    trackEvent('outbound_click', { source: 'pill', label, url: href });
   };
 
   const content = (

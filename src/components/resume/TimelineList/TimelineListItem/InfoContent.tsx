@@ -4,13 +4,13 @@ import type { Content } from '@/types/resume';
 import { trackEvent } from '@/lib/analytics';
 import { BsDot } from 'react-icons/bs';
 
-const onInfoLinkClick = (url: string) => {
-  trackEvent('info_link_click', { url });
+const onInfoLinkClick = (url: string, label?: string) => {
+  trackEvent('outbound_click', { source: 'info', url, label });
 };
 
 const InfoContent: FC<Content> = ({ title, url, details }) => {
-  const handleClick = (url: string) => {
-    if (url) onInfoLinkClick(url);
+  const handleClick = (url: string, label?: string) => {
+    if (url) onInfoLinkClick(url, label);
   };
   return (
     <>
@@ -28,7 +28,7 @@ const InfoContent: FC<Content> = ({ title, url, details }) => {
                   href={detailUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  onClick={() => handleClick(detailUrl)}
+                  onClick={() => handleClick(detailUrl, detail.title)}
                 >
                   <div className="text-primary-600 opacity-80 print:opacity-100">
                     {detail.title}
@@ -52,7 +52,7 @@ interface InfoTitleProps {
   url?: string;
 }
 const InfoTitle: FC<InfoTitleProps> = ({ title, url }) => {
-  const handleClick = () => onInfoLinkClick(url!);
+  const handleClick = () => onInfoLinkClick(url!, title);
   return url ? (
     <a
       className="no-underline"

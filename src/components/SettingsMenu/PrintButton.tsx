@@ -12,7 +12,7 @@ const relock = () => {
 
 const PrintButton: FC = () => {
   const handlePrint = () => {
-    trackEvent('print_resume');
+    trackEvent('resume_print');
     document.documentElement.classList.remove('print:hidden');
 
     window.addEventListener('afterprint', relock);

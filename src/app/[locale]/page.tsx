@@ -275,8 +275,12 @@ export default async function LandingPage({ params }: LandingPageProps) {
               {dictionary.projects.items.map((project) => (
                 <TrackedLink
                   key={project.name}
-                  event="project_click"
-                  data={{ name: project.name }}
+                  event="outbound_click"
+                  data={{
+                    source: 'project',
+                    url: project.url,
+                    label: project.name,
+                  }}
                   href={project.url}
                   target="_blank"
                   rel="noopener noreferrer"
