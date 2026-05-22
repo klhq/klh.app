@@ -20,11 +20,11 @@ Content is fetched from a private GitHub repo at build time. Identity data (name
 - **Framework:** Next.js 16 (App Router, SSG)
 - **Runtime:** Bun
 - **Styling:** Tailwind CSS v4, `@tailwindcss/typography`
-- **Theme:** [`@klh-app/theme`](https://www.npmjs.com/package/@klh-app/theme) (system/light/dark)
+- **Theme:** [`@klh-app/use-theme`](https://www.npmjs.com/package/@klh-app/use-theme) (system/light/dark)
 - **Blog:** MDX via `next-mdx-remote`, syntax highlighting with Shiki
 - **i18n:** `en`, `zh-TW`, `zh-CN` via `next-intl` (routing + locale detection)
 - **Deployment:** Vercel (static), Cloudflare DNS
-- **Analytics:** Google Analytics via `@next/third-parties`
+- **Analytics:** Self-hosted [Umami](https://umami.is) (tracker proxied same-origin via `/stats/*` rewrites)
 
 ## Routes
 
@@ -84,6 +84,7 @@ Optional:
 | `GRAVATAR_API_TOKEN`       | Gravatar API token (enables interests)            |
 | `PRINT_EMAIL`              | Email override for resume PDF export              |
 | `NEXT_PUBLIC_THEME_PRESET` | Theme preset (`default`, `meta`, `spotify`, etc.) |
+| `NEXT_PUBLIC_UMAMI_ID`     | Umami website ID — enables the analytics tracker  |
 
 ## Content Structure (klh-content)
 
