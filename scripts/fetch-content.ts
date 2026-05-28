@@ -162,11 +162,7 @@ function validateResumePatch(
   variant: string,
   localeLabel: string
 ): void {
-  if ('$schema' in patch) {
-    throw new Error(
-      `[fetch] resume/variants/${variant}/${localeLabel}.patch.jsonc must not include "$schema".`
-    );
-  }
+  delete patch['$schema'];
 
   const unknown = Object.keys(patch).filter(
     (key) => !RESUME_TOP_LEVEL_KEYS.has(key)
