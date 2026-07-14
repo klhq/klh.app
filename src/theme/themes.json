@@ -135,5 +135,22 @@
     "blob4": "125 42 232",
     "printAccent": "125 42 232",
     "printText": "30 41 59"
+  },
+  "trust-wallet": {
+    "primary500": "4 0 255",
+    "primary600": "27 192 210",
+    "primary400": "0 139 255",
+    "gradientFromLight": "15 23 42",
+    "gradientViaLight": "4 0 255",
+    "gradientToLight": "65 247 154",
+    "gradientFromDark": "248 250 252",
+    "gradientViaDark": "0 139 255",
+    "gradientToDark": "65 247 154",
+    "blob1": "4 0 255",
+    "blob2": "65 247 154",
+    "blob3": "27 192 210",
+    "blob4": "4 0 255",
+    "printAccent": "27 192 210",
+    "printText": "15 23 42"
   }
 }
