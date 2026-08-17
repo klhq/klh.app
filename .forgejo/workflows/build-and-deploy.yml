@@ -1,0 +1,55 @@
+name: Build and Deploy klh-app
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: workhorse
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch remote content
+        env:
+          CONTENT_REPO: 'klhq/klh-content'
+          CONTENT_GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          # Fetch latest content into src/content before docker build
+          if command -v bun >/dev/null 2>&1; then
+            bun install --frozen-lockfile
+            bun run fetch:content
+          fi
+
+      - name: Check and build klh-app
+        id: check-build
+        run: |
+          SHA=$(git log -1 --abbrev=7 --format="%h")
+          echo "Building klh-app for commit: $SHA"
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+
+          export DOCKER_CONFIG="$(mktemp -d)"
+          echo "${{ secrets.REGISTRY_PUSH_TOKEN }}" | docker login git.home -u klhq --password-stdin
+
+          docker build \
+            -t git.home/klhq/klh-app:latest \
+            -t git.home/klhq/klh-app:$SHA \
+            .
+
+          docker push git.home/klhq/klh-app:latest
+          docker push git.home/klhq/klh-app:$SHA
+          docker logout git.home
+          echo "build_run=true" >> "$GITHUB_OUTPUT"
+
+      - name: Trigger Komodo Stack Deploy
+        if: steps.check-build.outputs.build_run == 'true' || github.event_name == 'workflow_dispatch'
+        run: |
+          curl -sf -X POST http://100.118.129.82:9120/execute \
+            -H "X-Api-Key: ${{ secrets.KOMODO_API_KEY }}" \
+            -H "X-Api-Secret: ${{ secrets.KOMODO_API_SECRET }}" \
+            -H "Content-Type: application/json" \
+            -d '{"type": "DeployStack", "params": {"stack": "klh-app"}}'
