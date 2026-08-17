@@ -410,20 +410,41 @@ async function fetchQuotes(
   console.info('[fetch] Quotes: src/content/quotes.json');
 }
 
-async function main(): Promise<void> {
-  const repo = getEnv('CONTENT_REPO');
-  const ref = getEnv('CONTENT_REF') ?? 'main';
-  const token =
+function getGitHubToken(): string | undefined {
+  const envToken =
     getEnv('CONTENT_GITHUB_TOKEN') ??
     getEnv('GH_TOKEN') ??
     getEnv('GITHUB_TOKEN');
+  if (envToken) return envToken;
+
+  try {
+    const proc = Bun.spawnSync(['gh', 'auth', 'token']);
+    if (proc.exitCode === 0) {
+      const token = proc.stdout.toString().trim();
+      if (token.length > 0) return token;
+    }
+  } catch {
+    // gh CLI not available or failed
+  }
+
+  return undefined;
+}
+
+async function main(): Promise<void> {
+  const isStrict =
+    process.argv.includes('--strict') || process.env.CI === 'true';
+  const repo = getEnv('CONTENT_REPO');
+  const ref = getEnv('CONTENT_REF') ?? 'main';
+  const token = getGitHubToken();
   const variant = getEnv('RESUME_VARIANT') ?? 'default';
 
+  const hasLocalResume = await fileExists('src/content/resume');
+  const hasLocalLanding = await fileExists('src/content/landing');
+  const hasLocalBlog = await fileExists('src/content/blog');
+  const hasLocalContent = hasLocalResume || hasLocalLanding || hasLocalBlog;
+
   if (!repo) {
-    const hasLocalResume = await fileExists('src/content/resume');
-    const hasLocalLanding = await fileExists('src/content/landing');
-    const hasLocalBlog = await fileExists('src/content/blog');
-    if (hasLocalResume || hasLocalLanding || hasLocalBlog) {
+    if (hasLocalContent) {
       console.info('[fetch] CONTENT_REPO not set; using local content.');
       return;
     }
@@ -435,17 +456,36 @@ async function main(): Promise<void> {
   }
 
   if (!token) {
+    if (!isStrict && hasLocalContent) {
+      console.warn(
+        '[fetch] Missing CONTENT_GITHUB_TOKEN; falling back to local content.'
+      );
+      return;
+    }
+
     throw new Error(
       '[fetch] Missing CONTENT_GITHUB_TOKEN. Required for private repos.'
     );
   }
 
-  await Promise.all([
-    fetchResume(repo, ref, token, variant),
-    fetchLanding(repo, ref, token),
-    fetchBlogPosts(repo, ref, token),
-    fetchQuotes(repo, ref, token),
-  ]);
+  try {
+    await Promise.all([
+      fetchResume(repo, ref, token, variant),
+      fetchLanding(repo, ref, token),
+      fetchBlogPosts(repo, ref, token),
+      fetchQuotes(repo, ref, token),
+    ]);
+  } catch (err) {
+    if (!isStrict && hasLocalContent) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.warn(
+        `\n⚠️  [fetch] Failed to fetch remote content: ${message}\n` +
+          '   Using cached local content in src/content/ instead.\n'
+      );
+      return;
+    }
+    throw err;
+  }
 }
 
 await main();

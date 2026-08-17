@@ -12,8 +12,11 @@
   "scripts": {
     "dev": "bun run fetch:content && next dev",
     "dev:local": "next dev",
+    "dev:clean": "bun run clean && bun run dev",
     "fetch:content": "bun scripts/fetch-content.ts",
-    "build": "bun run fetch:content && next build",
+    "fetch:content:strict": "bun scripts/fetch-content.ts --strict",
+    "build": "bun run fetch:content:strict && next build",
+    "clean": "rm -rf .next",
     "start": "next start",
     "lint": "eslint src",
     "prettier": "prettier --write src"
