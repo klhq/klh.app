@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { FC } from 'react';
 import clsx from 'clsx';
-import Link from 'next/link';
+import BackButton from '@/components/BackButton';
 import Bios from '@/components/resume/Bios';
 import Sidebar from '@/components/resume/Sidebar';
 import TimelineList from '@/components/resume/TimelineList';
@@ -114,14 +114,7 @@ export default async function ResumePage({ params }: ResumePageProps) {
         </div>
       </div>
 
-      <Link
-        href={`/${locale}`}
-        className="glass-button group fixed top-4 left-4 z-50 print:hidden"
-        title="Back to home"
-        aria-label="Back to home"
-      >
-        <span className="transition-transform duration-200 group-hover:-translate-x-0.5">←</span>
-      </Link>
+      <BackButton href={`/${locale}`} />
     </div>
   );
 }
