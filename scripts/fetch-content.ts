@@ -294,17 +294,28 @@ async function fetchLanding(
       const remotePath = `landing/${locale}.json`;
       const outPath = path.join(outDir, `${locale}.json`);
 
-      try {
-        const decoded = await fetchFile(repo, remotePath, ref, token);
-        await writeFile(outPath, decoded, 'utf8');
-        console.info(`[fetch] Landing (${locale}): ${outPath}`);
-        return locale;
-      } catch {
+      const decoded = await fetchOptionalFile(repo, remotePath, ref, token);
+      if (!decoded) {
         console.info(`[fetch] Landing (${locale}): not found, skipping.`);
         return null;
       }
+      await writeFile(outPath, decoded, 'utf8');
+      console.info(`[fetch] Landing (${locale}): ${outPath}`);
+      return locale;
     })
   );
+
+  const failed = results.filter((r) => r.status === 'rejected');
+  if (failed.length > 0) {
+    const reasons = failed
+      .map((r) => (r as PromiseRejectedResult).reason)
+      .map((reason) =>
+        reason instanceof Error ? reason.message : String(reason)
+      );
+    throw new Error(
+      `[fetch] Failed to fetch landing data:\n  - ${reasons.join('\n  - ')}`
+    );
+  }
 
   const succeeded = results.filter(
     (r) => r.status === 'fulfilled' && r.value !== null
@@ -325,8 +336,14 @@ async function fetchBlogPosts(
   const refUrl = `https://api.github.com/repos/${repo}/git/ref/heads/${encodeURIComponent(ref)}`;
   const refRes = await fetch(refUrl, { headers: GITHUB_HEADERS(token) });
   if (!refRes.ok) {
-    console.info('[fetch] Blog: could not resolve ref, skipping.');
-    return;
+    if (refRes.status === 404) {
+      console.info('[fetch] Blog: ref not found, skipping.');
+      return;
+    }
+    const bodyText = await refRes.text();
+    throw new Error(
+      `[fetch] Blog ref resolution failed (${refRes.status}): ${bodyText}`
+    );
   }
   const refJson = (await refRes.json()) as GitHubRefResponse;
   const commitSha = refJson.object.sha;
@@ -335,8 +352,10 @@ async function fetchBlogPosts(
   const treeUrl = `https://api.github.com/repos/${repo}/git/trees/${commitSha}?recursive=1`;
   const treeRes = await fetch(treeUrl, { headers: GITHUB_HEADERS(token) });
   if (!treeRes.ok) {
-    console.info('[fetch] Blog: could not fetch tree, skipping.');
-    return;
+    const bodyText = await treeRes.text();
+    throw new Error(
+      `[fetch] Blog tree fetch failed (${treeRes.status}): ${bodyText}`
+    );
   }
   const treeJson = (await treeRes.json()) as GitHubTreeResponse;
 
@@ -381,20 +400,23 @@ async function fetchQuotes(
   ref: string,
   token: string
 ): Promise<void> {
-  try {
-    const content = await fetchFile(repo, 'quotes.json', ref, token);
-    await mkdir('src/content', { recursive: true });
-    await writeFile('src/content/quotes.json', content, 'utf8');
-    console.info('[fetch] Quotes: src/content/quotes.json');
-  } catch {
+  const content = await fetchOptionalFile(repo, 'quotes.json', ref, token);
+  if (!content) {
     console.info('[fetch] Quotes: not found, skipping.');
+    return;
   }
+  await mkdir('src/content', { recursive: true });
+  await writeFile('src/content/quotes.json', content, 'utf8');
+  console.info('[fetch] Quotes: src/content/quotes.json');
 }
 
 async function main(): Promise<void> {
   const repo = getEnv('CONTENT_REPO');
   const ref = getEnv('CONTENT_REF') ?? 'main';
-  const token = getEnv('CONTENT_GITHUB_TOKEN');
+  const token =
+    getEnv('CONTENT_GITHUB_TOKEN') ??
+    getEnv('GH_TOKEN') ??
+    getEnv('GITHUB_TOKEN');
   const variant = getEnv('RESUME_VARIANT') ?? 'default';
 
   if (!repo) {
