@@ -8,6 +8,7 @@ RUN bun install --frozen-lockfile
 
 # Copy application source
 COPY . .
+RUN mkdir -p public
 
 # Build Next.js standalone application
 ENV NODE_ENV=production
