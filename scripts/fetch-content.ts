@@ -1,4 +1,5 @@
 import { mkdir, stat, writeFile, rm } from 'node:fs/promises';
+import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { parse as parseJsonc, printParseErrorCode } from 'jsonc-parser';
 
@@ -294,17 +295,28 @@ async function fetchLanding(
       const remotePath = `landing/${locale}.json`;
       const outPath = path.join(outDir, `${locale}.json`);
 
-      try {
-        const decoded = await fetchFile(repo, remotePath, ref, token);
-        await writeFile(outPath, decoded, 'utf8');
-        console.info(`[fetch] Landing (${locale}): ${outPath}`);
-        return locale;
-      } catch {
+      const decoded = await fetchOptionalFile(repo, remotePath, ref, token);
+      if (!decoded) {
         console.info(`[fetch] Landing (${locale}): not found, skipping.`);
         return null;
       }
+      await writeFile(outPath, decoded, 'utf8');
+      console.info(`[fetch] Landing (${locale}): ${outPath}`);
+      return locale;
     })
   );
+
+  const failed = results.filter((r) => r.status === 'rejected');
+  if (failed.length > 0) {
+    const reasons = failed
+      .map((r) => (r as PromiseRejectedResult).reason)
+      .map((reason) =>
+        reason instanceof Error ? reason.message : String(reason)
+      );
+    throw new Error(
+      `[fetch] Failed to fetch landing data:\n  - ${reasons.join('\n  - ')}`
+    );
+  }
 
   const succeeded = results.filter(
     (r) => r.status === 'fulfilled' && r.value !== null
@@ -325,8 +337,14 @@ async function fetchBlogPosts(
   const refUrl = `https://api.github.com/repos/${repo}/git/ref/heads/${encodeURIComponent(ref)}`;
   const refRes = await fetch(refUrl, { headers: GITHUB_HEADERS(token) });
   if (!refRes.ok) {
-    console.info('[fetch] Blog: could not resolve ref, skipping.');
-    return;
+    if (refRes.status === 404) {
+      console.info('[fetch] Blog: ref not found, skipping.');
+      return;
+    }
+    const bodyText = await refRes.text();
+    throw new Error(
+      `[fetch] Blog ref resolution failed (${refRes.status}): ${bodyText}`
+    );
   }
   const refJson = (await refRes.json()) as GitHubRefResponse;
   const commitSha = refJson.object.sha;
@@ -335,8 +353,10 @@ async function fetchBlogPosts(
   const treeUrl = `https://api.github.com/repos/${repo}/git/trees/${commitSha}?recursive=1`;
   const treeRes = await fetch(treeUrl, { headers: GITHUB_HEADERS(token) });
   if (!treeRes.ok) {
-    console.info('[fetch] Blog: could not fetch tree, skipping.');
-    return;
+    const bodyText = await treeRes.text();
+    throw new Error(
+      `[fetch] Blog tree fetch failed (${treeRes.status}): ${bodyText}`
+    );
   }
   const treeJson = (await treeRes.json()) as GitHubTreeResponse;
 
@@ -381,27 +401,51 @@ async function fetchQuotes(
   ref: string,
   token: string
 ): Promise<void> {
-  try {
-    const content = await fetchFile(repo, 'quotes.json', ref, token);
-    await mkdir('src/content', { recursive: true });
-    await writeFile('src/content/quotes.json', content, 'utf8');
-    console.info('[fetch] Quotes: src/content/quotes.json');
-  } catch {
+  const content = await fetchOptionalFile(repo, 'quotes.json', ref, token);
+  if (!content) {
     console.info('[fetch] Quotes: not found, skipping.');
+    return;
   }
+  await mkdir('src/content', { recursive: true });
+  await writeFile('src/content/quotes.json', content, 'utf8');
+  console.info('[fetch] Quotes: src/content/quotes.json');
+}
+
+function getGitHubToken(): string | undefined {
+  const envToken =
+    getEnv('CONTENT_GITHUB_TOKEN') ??
+    getEnv('GH_TOKEN') ??
+    getEnv('GITHUB_TOKEN');
+  if (envToken) return envToken;
+
+  try {
+    const token = execFileSync('gh', ['auth', 'token'], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
+    if (token.length > 0) return token;
+  } catch {
+    // gh CLI not available or failed
+  }
+
+  return undefined;
 }
 
 async function main(): Promise<void> {
+  const isStrict =
+    process.argv.includes('--strict') || process.env.CI === 'true';
   const repo = getEnv('CONTENT_REPO');
   const ref = getEnv('CONTENT_REF') ?? 'main';
-  const token = getEnv('CONTENT_GITHUB_TOKEN');
+  const token = getGitHubToken();
   const variant = getEnv('RESUME_VARIANT') ?? 'default';
 
+  const hasLocalResume = await fileExists('src/content/resume');
+  const hasLocalLanding = await fileExists('src/content/landing');
+  const hasLocalBlog = await fileExists('src/content/blog');
+  const hasLocalContent = hasLocalResume || hasLocalLanding || hasLocalBlog;
+
   if (!repo) {
-    const hasLocalResume = await fileExists('src/content/resume');
-    const hasLocalLanding = await fileExists('src/content/landing');
-    const hasLocalBlog = await fileExists('src/content/blog');
-    if (hasLocalResume || hasLocalLanding || hasLocalBlog) {
+    if (hasLocalContent) {
       console.info('[fetch] CONTENT_REPO not set; using local content.');
       return;
     }
@@ -413,17 +457,36 @@ async function main(): Promise<void> {
   }
 
   if (!token) {
+    if (!isStrict && hasLocalContent) {
+      console.warn(
+        '[fetch] Missing CONTENT_GITHUB_TOKEN; falling back to local content.'
+      );
+      return;
+    }
+
     throw new Error(
       '[fetch] Missing CONTENT_GITHUB_TOKEN. Required for private repos.'
     );
   }
 
-  await Promise.all([
-    fetchResume(repo, ref, token, variant),
-    fetchLanding(repo, ref, token),
-    fetchBlogPosts(repo, ref, token),
-    fetchQuotes(repo, ref, token),
-  ]);
+  try {
+    await Promise.all([
+      fetchResume(repo, ref, token, variant),
+      fetchLanding(repo, ref, token),
+      fetchBlogPosts(repo, ref, token),
+      fetchQuotes(repo, ref, token),
+    ]);
+  } catch (err) {
+    if (!isStrict && hasLocalContent) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.warn(
+        `\n⚠️  [fetch] Failed to fetch remote content: ${message}\n` +
+          '   Using cached local content in src/content/ instead.\n'
+      );
+      return;
+    }
+    throw err;
+  }
 }
 
 await main();

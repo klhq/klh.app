@@ -43,14 +43,26 @@ const SettingsMenu: FC<SettingsMenuProps> = ({ locale }) => {
       }
     };
 
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        if (langOpen) {
+          setLangOpen(false);
+        } else if (isOpen) {
+          setIsOpen(false);
+        }
+      }
+    };
+
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleKeyDown);
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isOpen]);
+  }, [isOpen, langOpen]);
 
   return (
     <div ref={menuRef} className="fixed top-4 right-4 z-50 print:hidden">
@@ -102,6 +114,8 @@ const SettingsMenu: FC<SettingsMenuProps> = ({ locale }) => {
               onClick={() => setLangOpen(!langOpen)}
               title={`Language: ${LOCALE_LABELS[locale]}`}
               aria-label="Switch language"
+              aria-expanded={langOpen}
+              aria-haspopup="true"
             >
               <span className="text-xs font-bold transition-all duration-300 group-hover:scale-110 group-active:scale-90">
                 {LOCALE_LABELS[locale]}
@@ -118,6 +132,7 @@ const SettingsMenu: FC<SettingsMenuProps> = ({ locale }) => {
         title="Settings"
         aria-label="Settings"
         aria-expanded={isOpen}
+        aria-haspopup="true"
       >
         <div className="relative size-6">
           <MdSettings

@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import BackButton from '@/components/BackButton';
 
 export default async function BlogLayout({
   children,
@@ -11,17 +11,7 @@ export default async function BlogLayout({
 
   return (
     <div className="relative">
-      <nav className="fixed top-4 left-4 z-50">
-        <Link
-          href={`/${locale}`}
-          className="glass-button group"
-          title="Back to home"
-        >
-          <span className="transition-transform duration-200 group-hover:-translate-x-0.5">
-            ←
-          </span>
-        </Link>
-      </nav>
+      <BackButton href={`/${locale}`} />
       {children}
     </div>
   );
