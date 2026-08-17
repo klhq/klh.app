@@ -1,4 +1,5 @@
 import { mkdir, stat, writeFile, rm } from 'node:fs/promises';
+import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { parse as parseJsonc, printParseErrorCode } from 'jsonc-parser';
 
@@ -418,11 +419,11 @@ function getGitHubToken(): string | undefined {
   if (envToken) return envToken;
 
   try {
-    const proc = Bun.spawnSync(['gh', 'auth', 'token']);
-    if (proc.exitCode === 0) {
-      const token = proc.stdout.toString().trim();
-      if (token.length > 0) return token;
-    }
+    const token = execFileSync('gh', ['auth', 'token'], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
+    if (token.length > 0) return token;
   } catch {
     // gh CLI not available or failed
   }
