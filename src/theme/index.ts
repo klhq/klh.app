@@ -23,10 +23,12 @@ const { $schema: _schema, ...themePresets } = themesData as Record<
   string,
   unknown
 >;
-const THEME_PRESETS: Record<string, ThemeColors> = themePresets as Record<
+export const THEME_PRESETS: Record<string, ThemeColors> = themePresets as Record<
   string,
   ThemeColors
 >;
+
+export const THEME_PRESET_NAMES = Object.keys(THEME_PRESETS);
 
 export function getThemeColors(): ThemeColors {
   const presetName = process.env.NEXT_PUBLIC_THEME_PRESET;
@@ -71,6 +73,27 @@ export function getThemeColors(): ThemeColors {
     printAccent:
       process.env.NEXT_PUBLIC_PRINT_ACCENT || DEFAULT_COLORS.printAccent,
     printText: process.env.NEXT_PUBLIC_PRINT_TEXT || DEFAULT_COLORS.printText,
+  };
+}
+
+export function getPresetCSSVariables(presetName: string): Record<string, string> {
+  const colors = THEME_PRESETS[presetName] || getThemeColors();
+  return {
+    '--theme-primary-400': colors.primary400,
+    '--theme-primary-500': colors.primary500,
+    '--theme-primary-600': colors.primary600,
+    '--theme-blob-1': colors.blob1,
+    '--theme-blob-2': colors.blob2,
+    '--theme-blob-3': colors.blob3,
+    '--theme-blob-4': colors.blob4,
+    '--theme-gradient-from-light': colors.gradientFromLight,
+    '--theme-gradient-via-light': colors.gradientViaLight,
+    '--theme-gradient-to-light': colors.gradientToLight,
+    '--theme-gradient-from-dark': colors.gradientFromDark,
+    '--theme-gradient-via-dark': colors.gradientViaDark,
+    '--theme-gradient-to-dark': colors.gradientToDark,
+    '--theme-print-accent': colors.printAccent,
+    '--theme-print-text': colors.printText,
   };
 }
 

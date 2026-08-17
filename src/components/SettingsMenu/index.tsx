@@ -5,8 +5,10 @@ import Link from 'next/link';
 import { MdSettings, MdClose } from 'react-icons/md';
 import { trackEvent } from '@/lib/analytics';
 import ThemeSwitcher from './ThemeSwitcher';
+import ColorPresetSwitcher from './ColorPresetSwitcher';
 import PrintButton from './PrintButton';
 import Button from './Button';
+import { isPreviewMode } from '@/lib/preview';
 import clsx from 'clsx';
 
 const LOCALE_LABELS: Record<string, string> = {
@@ -24,10 +26,14 @@ interface SettingsMenuProps {
 const SettingsMenu: FC<SettingsMenuProps> = ({ locale }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
+  const isPreview = isPreviewMode();
   const menuRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
-  const showLocaleSwitcher = !pathname.endsWith('/resume');
-  const showPrint = pathname.endsWith('/resume');
+
+  const isResumePage = pathname.endsWith('/resume');
+  const showLocaleSwitcher = !isResumePage || isPreview;
+  const showColorPresetSwitcher = isPreview;
+  const showPrint = isResumePage;
 
   const toggleMenu = () => {
     const newState = !isOpen;
@@ -75,6 +81,8 @@ const SettingsMenu: FC<SettingsMenuProps> = ({ locale }) => {
         )}
       >
         <ThemeSwitcher />
+
+        {showColorPresetSwitcher && <ColorPresetSwitcher />}
 
         {showLocaleSwitcher && (
           <div className="relative flex items-center justify-end gap-2">
