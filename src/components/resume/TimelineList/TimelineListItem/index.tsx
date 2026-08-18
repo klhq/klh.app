@@ -1,5 +1,13 @@
 import { FC } from 'react';
 import type { ExperienceInfo } from '@/types/resume';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 import InfoContent from './InfoContent';
 import clsx from 'clsx';
 
@@ -25,9 +33,10 @@ const CompactItem: FC<TimelineListItemProps> = ({
     )}
   >
     {/* Vertical Line */}
-    <div
+    <Separator
+      orientation="vertical"
       className={clsx(
-        'absolute left-0 w-px bg-slate-200 dark:bg-slate-700',
+        'absolute left-0 bg-slate-200 dark:bg-slate-700',
         isFirst ? 'top-1.5' : 'top-0',
         isLast ? 'h-1.5 bottom-auto' : 'bottom-0'
       )}
@@ -44,9 +53,9 @@ const CompactItem: FC<TimelineListItemProps> = ({
 );
 
 const CardItem: FC<TimelineListItemProps> = ({ title, info }) => (
-  <div
+  <Card
     className={clsx(
-      'group relative mb-6 break-inside-avoid rounded-lg border border-slate-200 p-6 transition-all duration-200',
+      'group relative mb-6 break-inside-avoid rounded-lg border border-slate-200 p-6 transition-all duration-200 bg-transparent shadow-none gap-3',
       'last:mb-0',
       // Hover effects
       'hover:shadow-theme-600/10 hover:scale-[1.01] hover:border-slate-300 hover:shadow-lg',
@@ -57,15 +66,15 @@ const CardItem: FC<TimelineListItemProps> = ({ title, info }) => (
     )}
   >
     {/* Header Section */}
-    <div
+    <CardHeader
       className={clsx(
-        'mb-3 flex flex-col gap-2',
+        'p-0 mb-0 flex flex-col gap-2',
         'print:mb-1 print:flex-row print:items-baseline print:justify-between print:gap-1',
         'sm:flex-row sm:items-baseline sm:justify-between'
       )}
     >
       <div className="flex flex-col gap-1 print:gap-0">
-        <h3
+        <CardTitle
           className={clsx(
             'text-xl leading-tight font-bold tracking-tight text-slate-800',
             'print:text-sm print:font-bold',
@@ -73,7 +82,7 @@ const CardItem: FC<TimelineListItemProps> = ({ title, info }) => (
           )}
         >
           {title}
-        </h3>
+        </CardTitle>
         {info.position && (
           <div
             className={clsx(
@@ -86,21 +95,22 @@ const CardItem: FC<TimelineListItemProps> = ({ title, info }) => (
           </div>
         )}
       </div>
-      <div
+      <Badge
+        variant="secondary"
         className={clsx(
-          'shrink-0 rounded bg-slate-100 px-2 py-0.5 font-mono text-xs whitespace-nowrap text-slate-500',
-          'print:self-start print:bg-transparent print:p-0 print:text-[10px] print:font-medium print:text-slate-500',
+          'shrink-0 font-mono text-xs whitespace-nowrap text-slate-500 rounded px-2 py-0.5 font-normal',
+          'print:self-start print:bg-transparent print:p-0 print:text-[10px] print:font-medium print:text-slate-500 print:border-0',
           'dark:bg-slate-700 dark:text-slate-400'
         )}
       >
         {info.from} — {info.to}
-      </div>
-    </div>
+      </Badge>
+    </CardHeader>
 
     {/* Meta Info (Location/Degree) */}
     <div
       className={clsx(
-        'mb-3 flex items-center gap-2 font-mono text-xs text-slate-500',
+        'flex items-center gap-2 font-mono text-xs text-slate-500',
         'print:mb-1 print:text-[10px]',
         'dark:text-slate-400'
       )}
@@ -115,9 +125,9 @@ const CardItem: FC<TimelineListItemProps> = ({ title, info }) => (
     </div>
 
     {/* Content List */}
-    <div
+    <CardContent
       className={clsx(
-        'space-y-2 text-[13px] leading-relaxed text-slate-700',
+        'p-0 space-y-2 text-[13px] leading-relaxed text-slate-700',
         'print:space-y-0.5 print:text-[10px] print:leading-normal',
         'dark:text-slate-300'
       )}
@@ -130,8 +140,8 @@ const CardItem: FC<TimelineListItemProps> = ({ title, info }) => (
           details={item.details}
         />
       ))}
-    </div>
-  </div>
+    </CardContent>
+  </Card>
 );
 
 const TimelineListItem: FC<TimelineListItemProps> = (props) => {
