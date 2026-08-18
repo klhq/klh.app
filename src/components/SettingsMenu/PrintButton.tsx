@@ -1,7 +1,7 @@
 'use client';
 
 import { FC } from 'react';
-import { MdPrint } from 'react-icons/md';
+import { Printer } from 'lucide-react';
 import { trackEvent } from '@/lib/analytics';
 import Button from './Button';
 
@@ -26,7 +26,7 @@ const PrintButton: FC = () => {
       aria-label="Print Resume"
     >
       <div className="transition-transform duration-300 group-hover:scale-110 group-active:scale-90">
-        <MdPrint size={24} />
+        <Printer className="size-6" />
       </div>
     </Button>
   );

@@ -1,15 +1,18 @@
 'use client';
-import { FC } from 'react';
-import { AiFillGithub, AiFillLinkedin, AiOutlineMail } from 'react-icons/ai';
-import { IconType } from 'react-icons';
+import { FC, ComponentType } from 'react';
+import { Mail } from 'lucide-react';
+import { GithubIcon, LinkedinIcon } from '@/components/icons';
 import type { SocialLinkType, SocialLink } from '@/types/resume';
 import { trackEvent } from '@/lib/analytics';
 import clsx from 'clsx';
 
-const SOCIAL_LINK_ICON_MAP: Record<SocialLinkType, IconType> = {
-  Email: AiOutlineMail,
-  LinkedIn: AiFillLinkedin,
-  GitHub: AiFillGithub,
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- union of LucideIcon + custom SVG components
+type AnyIcon = ComponentType<any>;
+
+const SOCIAL_LINK_ICON_MAP: Record<SocialLinkType, AnyIcon> = {
+  Email: Mail,
+  LinkedIn: LinkedinIcon,
+  GitHub: GithubIcon,
 } as const;
 
 const onLinkClick = (url: string, label: SocialLinkType) => {

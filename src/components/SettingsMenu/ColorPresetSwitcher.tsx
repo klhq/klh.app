@@ -1,6 +1,6 @@
 'use client';
 import { FC, useState, useEffect } from 'react';
-import { MdPalette } from 'react-icons/md';
+import { Palette } from 'lucide-react';
 import { THEME_PRESET_NAMES, getPresetCSSVariables } from '@/theme';
 import Button from './Button';
 import clsx from 'clsx';
@@ -93,7 +93,7 @@ const ColorPresetSwitcher: FC = () => {
         aria-expanded={open}
         aria-haspopup="true"
       >
-        <MdPalette className="size-6 transition-all duration-300 group-hover:rotate-12 group-active:scale-90" />
+        <Palette className="size-6 transition-all duration-300 group-hover:rotate-12 group-active:scale-90" />
       </Button>
     </div>
   );
