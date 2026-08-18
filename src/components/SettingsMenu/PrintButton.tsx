@@ -34,9 +34,7 @@ const PrintButton: FC = () => {
           />
         }
       >
-        <div className="transition-transform duration-300 group-hover:scale-110 group-active:scale-90">
-          <Printer className="size-6" />
-        </div>
+        <Printer className="size-6 transition-transform duration-300 group-hover:scale-110 group-active:scale-90" />
       </TooltipTrigger>
       <TooltipContent side="left">Print Resume</TooltipContent>
     </Tooltip>
