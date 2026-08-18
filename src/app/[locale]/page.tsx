@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
+import { MapPin } from 'lucide-react';
 import clsx from 'clsx';
 import {
   SUPPORTED_LOCALES,
@@ -8,6 +9,7 @@ import {
   type Locale,
 } from '@/lib/i18n';
 import { getAllPosts } from '@/lib/blog';
+import { Badge } from '@/components/ui/badge';
 import FooterEasterEgg from '@/components/FooterEasterEgg';
 import CopyEmailPill from '@/components/CopyEmailPill';
 import LinkPill from '@/components/LinkPill';
@@ -117,8 +119,9 @@ export default async function LandingPage({ params }: LandingPageProps) {
             </p>
           )}
           {gravatar?.location && (
-            <p className="mb-2 font-mono text-[10px] text-slate-400 dark:text-slate-500">
-              📍 {gravatar.location}
+            <p className="mb-2 inline-flex items-center justify-center gap-1 font-mono text-[10px] text-slate-400 dark:text-slate-500">
+              <MapPin className="size-3 shrink-0" />
+              <span>{gravatar.location}</span>
             </p>
           )}
           {gravatar?.description && (
@@ -129,16 +132,13 @@ export default async function LandingPage({ params }: LandingPageProps) {
           {gravatar?.interests && gravatar.interests.length > 0 && (
             <div className="mx-auto mb-4 flex max-w-xs flex-wrap justify-center gap-1.5">
               {gravatar.interests.map((interest) => (
-                <span
+                <Badge
                   key={interest.id}
-                  className={clsx(
-                    'rounded-full px-2 py-0.5 text-[10px]',
-                    'bg-slate-100 text-slate-400',
-                    'dark:bg-white/5 dark:text-slate-500'
-                  )}
+                  variant="outline"
+                  className="rounded-full text-[10px] font-normal border-slate-200/60 dark:border-white/5 bg-slate-100/50 dark:bg-white/5 text-slate-500 dark:text-slate-400"
                 >
                   {interest.name}
-                </span>
+                </Badge>
               ))}
             </div>
           )}
