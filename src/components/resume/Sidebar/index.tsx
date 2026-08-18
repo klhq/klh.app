@@ -8,22 +8,25 @@ import type {
   SkillSetData,
   SocialLink as SocialLinkData,
 } from '@/types/resume';
+import type { ResumeDictionary } from '@/types/resume-ui';
 import SocialLink from './SocialLink';
 import SkillList from './SkillList';
 import TimelineList from '../TimelineList';
-
-const COLLEGE_NAME_MAP = {
-  ntu: 'National Taiwan University',
-  nchu: 'National Chung Hsing University',
-} as const;
 
 interface SidebarProps {
   socialLinks: ReadonlyArray<SocialLinkData>;
   skillSet: SkillSetData;
   education: ExperienceData<College>;
   printEmail?: string;
+  dictionary: ResumeDictionary;
 }
-const Sidebar: FC<SidebarProps> = ({ socialLinks, skillSet, education, printEmail }) => (
+const Sidebar: FC<SidebarProps> = ({
+  socialLinks,
+  skillSet,
+  education,
+  printEmail,
+  dictionary,
+}) => (
   <aside
     className={clsx(
       'glass-sidebar animate-fade-in-left flex flex-col gap-8 p-6',
@@ -46,7 +49,7 @@ const Sidebar: FC<SidebarProps> = ({ socialLinks, skillSet, education, printEmai
           'print:mb-2 print:border-b print:border-slate-300 print:pb-1 print:text-[11px] print:text-slate-600'
         )}
       >
-        Contact
+        {dictionary.sections.contact}
       </div>
       <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-1 print:grid-cols-1 print:gap-1.5">
         {socialLinks.map((e) => (
@@ -64,20 +67,25 @@ const Sidebar: FC<SidebarProps> = ({ socialLinks, skillSet, education, printEmai
           'print:mb-2 print:break-after-avoid print:border-b print:border-slate-300 print:pb-1 print:text-[11px] print:text-slate-600'
         )}
       >
-        Skills
+        {dictionary.sections.skills}
       </div>
       <div className="flex flex-col gap-6 print:gap-2">
         {Object.entries(skillSet).map(([skillType, skills], i) => (
-          <SkillList key={i} level={skillType as SkillLevel} skills={skills} />
+          <SkillList
+            key={i}
+            level={skillType as SkillLevel}
+            skills={skills}
+            label={dictionary.skillLevels[skillType as SkillLevel]}
+          />
         ))}
       </div>
     </div>
 
     {/* Education Section (Compact) */}
     <TimelineList
-      title="Education"
+      title={dictionary.sections.education}
       data={education}
-      nameMap={COLLEGE_NAME_MAP}
+      nameMap={dictionary.collegeNames}
       compact
     />
   </aside>

@@ -1,0 +1,25 @@
+{
+  "pageTitle": "履歷 — 許耕齡",
+  "sections": {
+    "contact": "社群連結",
+    "skills": "技能",
+    "workExperience": "工作經歷",
+    "education": "學歷"
+  },
+  "skillLevels": {
+    "proficiency": "熟練",
+    "familiar": "熟悉",
+    "knowledge": "略懂"
+  },
+  "companyNames": {
+    "freelance": "自由接案",
+    "linker": "Linker Networks Inc.",
+    "appier": "Appier Inc.",
+    "cdc": "Crypto.com",
+    "cronos": "Cronos Labs"
+  },
+  "collegeNames": {
+    "ntu": "國立臺灣大學",
+    "nchu": "國立中興大學"
+  }
+}

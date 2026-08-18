@@ -7,10 +7,40 @@ import './globals.css';
 import { getThemeCSSVariables } from '@/theme';
 import { cn } from "@/lib/utils";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+const geist = Geist({
+  subsets: ['latin'],
+  variable: '--font-sans',
+  display: 'swap',
+  fallback: [
+    '-apple-system',
+    'BlinkMacSystemFont',
+    'Segoe UI',
+    'Roboto',
+    'PingFang TC',
+    'PingFang SC',
+    'Noto Sans TC',
+    'Noto Sans SC',
+    'Microsoft JhengHei',
+    'Microsoft YaHei',
+    'sans-serif',
+  ],
+});
 const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
   variable: '--font-mono',
+  display: 'swap',
+  fallback: [
+    'ui-monospace',
+    'SFMono-Regular',
+    'Menlo',
+    'Monaco',
+    'Consolas',
+    'Liberation Mono',
+    'Courier New',
+    'PingFang TC',
+    'Microsoft JhengHei',
+    'monospace',
+  ],
 });
 
 export const metadata: Metadata = {
