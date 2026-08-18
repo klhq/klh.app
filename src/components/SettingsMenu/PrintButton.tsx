@@ -2,6 +2,11 @@
 
 import { FC } from 'react';
 import { Printer } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from '@/components/ui/tooltip';
 import { trackEvent } from '@/lib/analytics';
 import Button from './Button';
 
@@ -20,15 +25,21 @@ const PrintButton: FC = () => {
   };
 
   return (
-    <Button
-      onClick={handlePrint}
-      title="Print Resume"
-      aria-label="Print Resume"
-    >
-      <div className="transition-transform duration-300 group-hover:scale-110 group-active:scale-90">
-        <Printer className="size-6" />
-      </div>
-    </Button>
+    <Tooltip>
+      <TooltipTrigger
+        render={
+          <Button
+            onClick={handlePrint}
+            aria-label="Print Resume"
+          />
+        }
+      >
+        <div className="transition-transform duration-300 group-hover:scale-110 group-active:scale-90">
+          <Printer className="size-6" />
+        </div>
+      </TooltipTrigger>
+      <TooltipContent side="left">Print Resume</TooltipContent>
+    </Tooltip>
   );
 };
 

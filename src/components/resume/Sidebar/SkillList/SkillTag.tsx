@@ -1,16 +1,19 @@
 import type { SkillLevel } from '@/types/resume';
 import { FC } from 'react';
+import { Badge } from '@/components/ui/badge';
 import clsx from 'clsx';
 
 interface SkillTagProps {
   level: SkillLevel;
   skill: string;
 }
+
 const SkillTag: FC<SkillTagProps> = ({ level, skill }) => {
   return (
-    <div
+    <Badge
+      variant="outline"
       className={clsx(
-        'rounded-md border px-2.5 py-1 font-mono text-xs transition-all duration-200 hover:scale-105',
+        'h-auto px-2.5 py-1 font-mono text-xs transition-all duration-200 hover:scale-105 rounded-md',
         // Print styles
         'print:border-slate-300 print:bg-transparent print:p-0.5 print:px-1.5 print:text-[10px]',
         {
@@ -44,7 +47,7 @@ const SkillTag: FC<SkillTagProps> = ({ level, skill }) => {
       )}
     >
       {skill}
-    </div>
+    </Badge>
   );
 };
 

@@ -3,6 +3,11 @@ import { FC, useState, useRef, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { Settings, X } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from '@/components/ui/tooltip';
 import { trackEvent } from '@/lib/analytics';
 import ThemeSwitcher from './ThemeSwitcher';
 import ColorPresetSwitcher from './ColorPresetSwitcher';
@@ -118,45 +123,57 @@ const SettingsMenu: FC<SettingsMenuProps> = ({ locale }) => {
             </div>
 
             {/* Current locale button */}
-            <Button
-              onClick={() => setLangOpen(!langOpen)}
-              title={`Language: ${LOCALE_LABELS[locale]}`}
-              aria-label="Switch language"
-              aria-expanded={langOpen}
-              aria-haspopup="true"
-            >
-              <span className="text-xs font-bold transition-all duration-300 group-hover:scale-110 group-active:scale-90">
-                {LOCALE_LABELS[locale]}
-              </span>
-            </Button>
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Button
+                    onClick={() => setLangOpen(!langOpen)}
+                    aria-label="Switch language"
+                    aria-expanded={langOpen}
+                    aria-haspopup="true"
+                  />
+                }
+              >
+                <span className="text-xs font-bold transition-all duration-300 group-hover:scale-110 group-active:scale-90">
+                  {LOCALE_LABELS[locale]}
+                </span>
+              </TooltipTrigger>
+              <TooltipContent side="left">{`Language: ${LOCALE_LABELS[locale]}`}</TooltipContent>
+            </Tooltip>
           </div>
         )}
 
         {showPrint && <PrintButton />}
       </div>
 
-      <Button
-        onClick={toggleMenu}
-        title="Settings"
-        aria-label="Settings"
-        aria-expanded={isOpen}
-        aria-haspopup="true"
-      >
-        <div className="relative size-6">
-          <Settings
-            className={clsx(
-              'absolute inset-0 size-6 transition-all duration-300 group-hover:rotate-45 group-active:scale-90',
-              isOpen ? 'rotate-90 opacity-0' : 'rotate-0 opacity-100'
-            )}
-          />
-          <X
-            className={clsx(
-              'absolute inset-0 size-6 transition-all duration-300 group-hover:rotate-90 group-active:scale-90',
-              isOpen ? 'rotate-0 opacity-100' : '-rotate-90 opacity-0'
-            )}
-          />
-        </div>
-      </Button>
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <Button
+              onClick={toggleMenu}
+              aria-label="Settings"
+              aria-expanded={isOpen}
+              aria-haspopup="true"
+            />
+          }
+        >
+          <div className="relative size-6">
+            <Settings
+              className={clsx(
+                'absolute inset-0 size-6 transition-all duration-300 group-hover:rotate-45 group-active:scale-90',
+                isOpen ? 'rotate-90 opacity-0' : 'rotate-0 opacity-100'
+              )}
+            />
+            <X
+              className={clsx(
+                'absolute inset-0 size-6 transition-all duration-300 group-hover:rotate-90 group-active:scale-90',
+                isOpen ? 'rotate-0 opacity-100' : '-rotate-90 opacity-0'
+              )}
+            />
+          </div>
+        </TooltipTrigger>
+        <TooltipContent side="left">{isOpen ? 'Close settings' : 'Settings'}</TooltipContent>
+      </Tooltip>
     </div>
   );
 };
