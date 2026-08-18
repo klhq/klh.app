@@ -6,30 +6,40 @@ import Bios from '@/components/resume/Bios';
 import Sidebar from '@/components/resume/Sidebar';
 import TimelineList from '@/components/resume/TimelineList';
 import {
+  DEFAULT_LOCALE,
   SUPPORTED_LOCALES,
   getResumeData,
   getResumeDictionary,
   type Locale,
 } from '@/lib/i18n';
+import { isPreviewMode } from '@/lib/preview';
 
 interface ResumePageProps {
   params: Promise<{ locale: string }>;
 }
 
+// Chinese resume routes only exist in preview/dev — dynamicParams=false below
+// makes any locale not returned here 404 in production instead of rendering.
 export function generateStaticParams() {
-  return SUPPORTED_LOCALES.map((locale) => ({ locale }));
+  if (isPreviewMode()) {
+    return SUPPORTED_LOCALES.map((locale) => ({ locale }));
+  }
+  return [{ locale: DEFAULT_LOCALE }];
 }
+
+export const dynamicParams = false;
 
 export async function generateMetadata({
   params,
 }: ResumePageProps): Promise<Metadata> {
   const { locale } = await params;
   const dictionary = await getResumeDictionary(locale as Locale);
+  const availableLocales = isPreviewMode() ? SUPPORTED_LOCALES : [DEFAULT_LOCALE];
   return {
     title: dictionary.pageTitle,
     alternates: {
       languages: Object.fromEntries(
-        SUPPORTED_LOCALES.map((l) => [l, `/${l}/resume`])
+        availableLocales.map((l) => [l, `/${l}/resume`])
       ),
     },
     openGraph: {
