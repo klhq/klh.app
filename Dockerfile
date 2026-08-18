@@ -13,6 +13,8 @@ RUN mkdir -p public
 # Build Next.js standalone application
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+ARG NEXT_PUBLIC_PREVIEW=true
+ENV NEXT_PUBLIC_PREVIEW=$NEXT_PUBLIC_PREVIEW
 RUN bun run build
 
 # Production runner stage
