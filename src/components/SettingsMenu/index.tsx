@@ -53,7 +53,7 @@ const SettingsMenu: FC<SettingsMenuProps> = ({ locale }) => {
           if (!open) setLangOpen(false);
         }}
       >
-        <Tooltip>
+        <Tooltip open={isOpen ? false : undefined}>
           <TooltipTrigger
             render={
               <PopoverTrigger

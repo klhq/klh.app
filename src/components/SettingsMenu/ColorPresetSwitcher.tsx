@@ -66,7 +66,7 @@ const ColorPresetSwitcher: FC = () => {
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <Tooltip>
+      <Tooltip open={open ? false : undefined}>
         <TooltipTrigger
           render={
             <PopoverTrigger
