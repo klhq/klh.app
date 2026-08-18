@@ -5,7 +5,12 @@ import BackButton from '@/components/BackButton';
 import Bios from '@/components/resume/Bios';
 import Sidebar from '@/components/resume/Sidebar';
 import TimelineList from '@/components/resume/TimelineList';
-import { SUPPORTED_LOCALES, getResumeData, type Locale } from '@/lib/i18n';
+import {
+  SUPPORTED_LOCALES,
+  getResumeData,
+  getResumeDictionary,
+  type Locale,
+} from '@/lib/i18n';
 
 interface ResumePageProps {
   params: Promise<{ locale: string }>;
@@ -19,8 +24,9 @@ export async function generateMetadata({
   params,
 }: ResumePageProps): Promise<Metadata> {
   const { locale } = await params;
+  const dictionary = await getResumeDictionary(locale as Locale);
   return {
-    title: `Resume — KL Hsu`,
+    title: dictionary.pageTitle,
     alternates: {
       languages: Object.fromEntries(
         SUPPORTED_LOCALES.map((l) => [l, `/${l}/resume`])
@@ -31,13 +37,6 @@ export async function generateMetadata({
     },
   };
 }
-
-const COMPANY_NAME_MAP = {
-  linker: 'Linker Networks Inc.',
-  appier: 'Appier Inc.',
-  cdc: 'Crypto.com',
-  cronos: 'Cronos Labs',
-} as const;
 
 const BackgroundBlobs: FC = () => (
   <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden print:hidden">
@@ -50,8 +49,11 @@ const BackgroundBlobs: FC = () => (
 
 export default async function ResumePage({ params }: ResumePageProps) {
   const { locale } = await params;
-  const { profile, socialLinks, skillSet, workExperience, education } =
-    await getResumeData(locale as Locale);
+  const [{ profile, socialLinks, skillSet, workExperience, education }, dictionary] =
+    await Promise.all([
+      getResumeData(locale as Locale),
+      getResumeDictionary(locale as Locale),
+    ]);
 
   return (
     <div
@@ -95,6 +97,7 @@ export default async function ResumePage({ params }: ResumePageProps) {
             skillSet={skillSet}
             education={education}
             printEmail={process.env.PRINT_EMAIL}
+            dictionary={dictionary}
           />
 
           {/* Main Content (Work Experience) */}
@@ -106,9 +109,9 @@ export default async function ResumePage({ params }: ResumePageProps) {
             )}
           >
             <TimelineList
-              title="Work Experience"
+              title={dictionary.sections.workExperience}
               data={workExperience}
-              nameMap={COMPANY_NAME_MAP}
+              nameMap={dictionary.companyNames}
             />
           </main>
         </div>

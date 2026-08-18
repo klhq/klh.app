@@ -1,0 +1,25 @@
+{
+  "pageTitle": "Resume — KL Hsu",
+  "sections": {
+    "contact": "Contact",
+    "skills": "Skills",
+    "workExperience": "Work Experience",
+    "education": "Education"
+  },
+  "skillLevels": {
+    "proficiency": "Proficient in",
+    "familiar": "Familiar with",
+    "knowledge": "Knowledge of"
+  },
+  "companyNames": {
+    "freelance": "Freelance",
+    "linker": "Linker Networks Inc.",
+    "appier": "Appier Inc.",
+    "cdc": "Crypto.com",
+    "cronos": "Cronos Labs"
+  },
+  "collegeNames": {
+    "ntu": "National Taiwan University",
+    "nchu": "National Chung Hsing University"
+  }
+}
