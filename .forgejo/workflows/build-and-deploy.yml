@@ -14,6 +14,18 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: DEBUG diag
+        run: |
+          echo "pwd: $(pwd)"
+          echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
+          ls -la
+          echo "--- bunfig.toml ---"
+          cat bunfig.toml || echo "MISSING"
+          echo "--- bun version ---"
+          bun --version
+          echo "--- env (bun/home) ---"
+          env | grep -iE "bun|^home" || true
+
       - name: Fetch remote content
         env:
           CONTENT_REPO: 'klhq/klh-content'
@@ -21,7 +33,7 @@ jobs:
         run: |
           # Fetch latest content into src/content before docker build
           if command -v bun >/dev/null 2>&1; then
-            bun install --frozen-lockfile
+            bun install --frozen-lockfile --verbose
             bun run fetch:content
           fi
 
