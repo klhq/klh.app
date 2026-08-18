@@ -53,6 +53,12 @@ const GITHUB_HEADERS = (token: string) => ({
 
 const SUPPORTED_LOCALES = ['en', 'zh-TW', 'zh-CN'];
 
+// zh-CN has no Simplified Chinese resume content yet — reuse zh-TW's
+// Traditional Chinese base rather than falling straight through to English.
+const RESUME_LOCALE_FALLBACK: Partial<Record<string, string>> = {
+  'zh-CN': 'zh-TW',
+};
+
 const RESUME_TOP_LEVEL_KEYS = new Set([
   'profile',
   'socialLinks',
@@ -175,6 +181,21 @@ function validateResumePatch(
   }
 }
 
+type FallbackCandidate = { path: string; label: string };
+
+async function fetchFirstAvailable(
+  repo: string,
+  ref: string,
+  token: string,
+  candidates: FallbackCandidate[]
+): Promise<{ label: string; content: string } | null> {
+  for (const { path: candidatePath, label } of candidates) {
+    const content = await fetchOptionalFile(repo, candidatePath, ref, token);
+    if (content !== null) return { label, content };
+  }
+  return null;
+}
+
 async function fetchResume(
   repo: string,
   ref: string,
@@ -183,66 +204,59 @@ async function fetchResume(
 ): Promise<void> {
   const results = await Promise.allSettled(
     SUPPORTED_LOCALES.map(async (locale) => {
-      const baseRemotePath = `resume/base/${locale}/data.jsonc`;
-      const baseFallbackPath = 'resume/base/en/data.jsonc';
-      const legacyRemotePath = `resume/${locale}/data.jsonc`;
-      const legacyFallbackPath = 'resume/en/data.jsonc';
+      const localeFallback = RESUME_LOCALE_FALLBACK[locale];
       const outDir = `src/content/resume/${locale}`;
       const outPath = path.join(outDir, 'data.jsonc');
 
       try {
-        const localeBase = await fetchOptionalFile(
-          repo,
-          baseRemotePath,
-          ref,
-          token
-        );
-        const fallbackBase =
-          localeBase === null
-            ? await fetchOptionalFile(repo, baseFallbackPath, ref, token)
-            : null;
-        const legacyLocaleBase =
-          localeBase === null && fallbackBase === null
-            ? await fetchOptionalFile(repo, legacyRemotePath, ref, token)
-            : null;
-        const legacyFallbackBase =
-          localeBase === null &&
-          fallbackBase === null &&
-          legacyLocaleBase === null
-            ? await fetchOptionalFile(repo, legacyFallbackPath, ref, token)
-            : null;
-
-        const resolvedBase =
-          localeBase ?? fallbackBase ?? legacyLocaleBase ?? legacyFallbackBase;
+        const resolvedBase = await fetchFirstAvailable(repo, ref, token, [
+          { path: `resume/base/${locale}/data.jsonc`, label: locale },
+          ...(localeFallback
+            ? [
+                {
+                  path: `resume/base/${localeFallback}/data.jsonc`,
+                  label: localeFallback,
+                },
+              ]
+            : []),
+          { path: 'resume/base/en/data.jsonc', label: 'en' },
+          { path: `resume/${locale}/data.jsonc`, label: locale },
+          { path: 'resume/en/data.jsonc', label: 'en' },
+        ]);
 
         if (!resolvedBase) {
           console.info(`[fetch] Resume (${locale}): base not found, skipping.`);
           return null;
         }
 
-        let merged = parseJsoncObject(resolvedBase, `Resume base (${locale})`);
+        let merged = parseJsoncObject(
+          resolvedBase.content,
+          `Resume base (${locale})`
+        );
 
         if (variant !== 'default') {
-          const patchRemotePath = `resume/variants/${variant}/${locale}.patch.jsonc`;
-          const patchFallbackPath = `resume/variants/${variant}/en.patch.jsonc`;
-          const localePatch = await fetchOptionalFile(
-            repo,
-            patchRemotePath,
-            ref,
-            token
-          );
-          const fallbackPatch =
-            localePatch === null
-              ? await fetchOptionalFile(repo, patchFallbackPath, ref, token)
-              : null;
-          const resolvedPatch = localePatch ?? fallbackPatch;
+          const resolvedPatch = await fetchFirstAvailable(repo, ref, token, [
+            {
+              path: `resume/variants/${variant}/${locale}.patch.jsonc`,
+              label: locale,
+            },
+            ...(localeFallback
+              ? [
+                  {
+                    path: `resume/variants/${variant}/${localeFallback}.patch.jsonc`,
+                    label: localeFallback,
+                  },
+                ]
+              : []),
+            { path: `resume/variants/${variant}/en.patch.jsonc`, label: 'en' },
+          ]);
 
           if (resolvedPatch) {
             const patch = parseJsoncObject(
-              resolvedPatch,
+              resolvedPatch.content,
               `Resume patch (${variant}/${locale})`
             );
-            validateResumePatch(patch, variant, localePatch ? locale : 'en');
+            validateResumePatch(patch, variant, resolvedPatch.label);
             merged = mergePatch(merged, patch) as Record<string, unknown>;
           }
         }
