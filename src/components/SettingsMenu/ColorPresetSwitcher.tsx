@@ -1,11 +1,16 @@
 'use client';
 import { FC, useState, useEffect } from 'react';
-import { Palette } from 'lucide-react';
+import { Palette, Check } from 'lucide-react';
 import {
   Tooltip,
   TooltipTrigger,
   TooltipContent,
 } from '@/components/ui/tooltip';
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from '@/components/ui/popover';
 import { THEME_PRESET_NAMES, getPresetCSSVariables } from '@/theme';
 import Button from './Button';
 import clsx from 'clsx';
@@ -54,53 +59,22 @@ const ColorPresetSwitcher: FC = () => {
     } catch {
       // Ignore storage errors
     }
+    setOpen(false);
   };
 
   const label = `Color System (${PRESET_LABELS[activePreset] || activePreset})`;
 
   return (
-    <div className="relative flex items-center justify-end gap-2">
-      {/* Preset dropdown list */}
-      <div
-        className={clsx(
-          'absolute top-12 right-0 z-50 flex max-h-60 w-44 flex-col gap-1 overflow-y-auto rounded-lg border border-slate-200 bg-white/90 p-2 shadow-xl backdrop-blur-md transition-all duration-200',
-          'dark:border-white/10 dark:bg-slate-800/90',
-          open
-            ? 'translate-y-0 scale-100 opacity-100'
-            : 'pointer-events-none -translate-y-2 scale-95 opacity-0'
-        )}
-      >
-        <div className="mb-1 border-b border-slate-100 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:border-white/5 dark:text-slate-500">
-          Color Scheme
-        </div>
-        {THEME_PRESET_NAMES.map((name) => (
-          <button
-            key={name}
-            type="button"
-            onClick={() => {
-              selectPreset(name);
-              setOpen(false);
-            }}
-            className={clsx(
-              'rounded px-2 py-1.5 text-left text-xs transition-colors',
-              activePreset === name
-                ? 'bg-theme-600 font-semibold text-white dark:bg-theme-500'
-                : 'text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-white/10'
-            )}
-          >
-            {PRESET_LABELS[name] || name}
-          </button>
-        ))}
-      </div>
-
+    <Popover open={open} onOpenChange={setOpen}>
       <Tooltip>
         <TooltipTrigger
           render={
-            <Button
-              onClick={() => setOpen(!open)}
-              aria-label="Switch color preset"
-              aria-expanded={open}
-              aria-haspopup="true"
+            <PopoverTrigger
+              render={
+                <Button
+                  aria-label="Switch color preset"
+                />
+              }
             />
           }
         >
@@ -108,7 +82,36 @@ const ColorPresetSwitcher: FC = () => {
         </TooltipTrigger>
         <TooltipContent side="left">{label}</TooltipContent>
       </Tooltip>
-    </div>
+
+      <PopoverContent
+        align="end"
+        side="left"
+        sideOffset={12}
+        className="w-48 p-2 backdrop-blur-md bg-white/90 dark:bg-slate-800/90 border border-slate-200 dark:border-white/10 shadow-xl"
+      >
+        <div className="mb-1 border-b border-slate-100 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:border-white/5 dark:text-slate-500">
+          Color Scheme
+        </div>
+        <div className="flex flex-col gap-1 max-h-60 overflow-y-auto">
+          {THEME_PRESET_NAMES.map((name) => (
+            <button
+              key={name}
+              type="button"
+              onClick={() => selectPreset(name)}
+              className={clsx(
+                'flex items-center justify-between rounded px-2 py-1.5 text-left text-xs transition-colors cursor-pointer',
+                activePreset === name
+                  ? 'bg-theme-600 font-semibold text-white dark:bg-theme-500'
+                  : 'text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-white/10'
+              )}
+            >
+              <span>{PRESET_LABELS[name] || name}</span>
+              {activePreset === name && <Check className="size-3.5 shrink-0" />}
+            </button>
+          ))}
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 };
 
