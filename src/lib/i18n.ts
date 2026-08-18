@@ -38,77 +38,62 @@ async function readJsoncFile<T>(filePath: string): Promise<T | null> {
   }
 }
 
+// Tries `locale`, then a mapped locale fallback (e.g. zh-CN -> zh-TW) if any,
+// then English, in that order, using the first file that resolves.
+async function readWithLocaleFallback<T>(
+  locale: Locale,
+  toPath: (locale: Locale) => string,
+  reader: (filePath: string) => Promise<T | null>,
+  localeFallbackMap: Partial<Record<Locale, Locale>>,
+  errorLabel: string
+): Promise<T> {
+  const data = await reader(toPath(locale));
+  if (data) return data;
+
+  const localeFallback = localeFallbackMap[locale];
+  if (localeFallback) {
+    const fallback = await reader(toPath(localeFallback));
+    if (fallback) return fallback;
+  }
+
+  if (locale !== DEFAULT_LOCALE) {
+    const fallback = await reader(toPath(DEFAULT_LOCALE));
+    if (fallback) return fallback;
+  }
+
+  throw new Error(`[i18n] No ${errorLabel} found for locale "${locale}"`);
+}
+
 export async function getDictionary(
   locale: Locale
 ): Promise<LandingDictionary> {
-  const filePath = path.join(CONTENT_DIR, 'landing', `${locale}.json`);
-  const data = await readJsonFile<LandingDictionary>(filePath);
-  if (data) return data;
-
-  // Fallback to English
-  if (locale !== DEFAULT_LOCALE) {
-    const fallback = await readJsonFile<LandingDictionary>(
-      path.join(CONTENT_DIR, 'landing', `${DEFAULT_LOCALE}.json`)
-    );
-    if (fallback) return fallback;
-  }
-
-  throw new Error(`[i18n] No dictionary found for locale "${locale}"`);
+  return readWithLocaleFallback(
+    locale,
+    (l) => path.join(CONTENT_DIR, 'landing', `${l}.json`),
+    readJsonFile<LandingDictionary>,
+    {},
+    'dictionary'
+  );
 }
 
 export async function getResumeData(locale: Locale): Promise<ResumeData> {
-  const filePath = path.join(
-    CONTENT_DIR,
-    'resume',
+  return readWithLocaleFallback(
     locale,
-    'data.jsonc'
+    (l) => path.join(CONTENT_DIR, 'resume', l, 'data.jsonc'),
+    readJsoncFile<ResumeData>,
+    RESUME_LOCALE_FALLBACK,
+    'resume data'
   );
-  const data = await readJsoncFile<ResumeData>(filePath);
-  if (data) return data;
-
-  // Fallback to the mapped locale (e.g. zh-CN -> zh-TW), if any
-  const localeFallback = RESUME_LOCALE_FALLBACK[locale];
-  if (localeFallback) {
-    const fallback = await readJsoncFile<ResumeData>(
-      path.join(CONTENT_DIR, 'resume', localeFallback, 'data.jsonc')
-    );
-    if (fallback) return fallback;
-  }
-
-  // Fallback to English
-  if (locale !== DEFAULT_LOCALE) {
-    const fallback = await readJsoncFile<ResumeData>(
-      path.join(CONTENT_DIR, 'resume', DEFAULT_LOCALE, 'data.jsonc')
-    );
-    if (fallback) return fallback;
-  }
-
-  throw new Error(`[i18n] No resume data found for locale "${locale}"`);
 }
 
 export async function getResumeDictionary(
   locale: Locale
 ): Promise<ResumeDictionary> {
-  const filePath = path.join(MESSAGES_DIR, 'resume-ui', `${locale}.json`);
-  const data = await readJsonFile<ResumeDictionary>(filePath);
-  if (data) return data;
-
-  // Fallback to the mapped locale (e.g. zh-CN -> zh-TW), if any
-  const localeFallback = RESUME_LOCALE_FALLBACK[locale];
-  if (localeFallback) {
-    const fallback = await readJsonFile<ResumeDictionary>(
-      path.join(MESSAGES_DIR, 'resume-ui', `${localeFallback}.json`)
-    );
-    if (fallback) return fallback;
-  }
-
-  // Fallback to English
-  if (locale !== DEFAULT_LOCALE) {
-    const fallback = await readJsonFile<ResumeDictionary>(
-      path.join(MESSAGES_DIR, 'resume-ui', `${DEFAULT_LOCALE}.json`)
-    );
-    if (fallback) return fallback;
-  }
-
-  throw new Error(`[i18n] No resume dictionary found for locale "${locale}"`);
+  return readWithLocaleFallback(
+    locale,
+    (l) => path.join(MESSAGES_DIR, 'resume-ui', `${l}.json`),
+    readJsonFile<ResumeDictionary>,
+    RESUME_LOCALE_FALLBACK,
+    'resume dictionary'
+  );
 }
