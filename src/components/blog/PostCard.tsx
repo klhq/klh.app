@@ -20,8 +20,8 @@ interface PostCardProps {
 
 const PostCard: FC<PostCardProps> = ({ post, locale }) => (
   <Link href={`/${locale}/blog/${post.slug}`} className="block">
-    <Card className="glass-card-interactive group p-5 gap-3">
-      <CardHeader className="p-0 gap-1.5 has-data-[slot=card-action]:grid-cols-[1fr_auto]">
+    <Card className="glass-card-interactive group bg-transparent ring-0 p-5 gap-3 pb-5">
+      <CardHeader className="p-0 gap-1.5">
         <div className="font-mono text-[10px] text-slate-400 dark:text-slate-500">
           {new Date(post.date).toLocaleDateString(locale, {
             month: 'short',
@@ -30,6 +30,7 @@ const PostCard: FC<PostCardProps> = ({ post, locale }) => (
           })}
         </div>
         <CardTitle
+          render={<h2 />}
           className={clsx(
             'text-sm font-semibold text-slate-900 transition-colors',
             'group-hover:text-theme-600',
@@ -41,7 +42,7 @@ const PostCard: FC<PostCardProps> = ({ post, locale }) => (
         <CardDescription className="text-xs text-slate-500 dark:text-slate-400">
           {post.description}
         </CardDescription>
-        <CardAction className="mt-1">
+        <CardAction className="row-start-1 row-span-2 self-start mt-1">
           <span className="hover-arrow inline-flex items-center">
             <ArrowRight className="size-4" />
           </span>

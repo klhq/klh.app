@@ -35,6 +35,7 @@ const CompactItem: FC<TimelineListItemProps> = ({
     {/* Vertical Line */}
     <Separator
       orientation="vertical"
+      aria-hidden="true"
       className={clsx(
         'absolute left-0 bg-slate-200 dark:bg-slate-700',
         isFirst ? 'top-1.5' : 'top-0',
@@ -55,12 +56,12 @@ const CompactItem: FC<TimelineListItemProps> = ({
 const CardItem: FC<TimelineListItemProps> = ({ title, info }) => (
   <Card
     className={clsx(
-      'group relative mb-6 break-inside-avoid rounded-lg border border-slate-200 p-6 transition-all duration-200 bg-transparent shadow-none gap-3',
+      'group relative mb-6 break-inside-avoid rounded-lg border border-slate-200 p-6 transition-all duration-200 bg-transparent shadow-none ring-0 gap-3',
       'last:mb-0',
       // Hover effects
       'hover:shadow-theme-600/10 hover:scale-[1.01] hover:border-slate-300 hover:shadow-lg',
       // Print styles
-      'print:mb-3 print:border-none print:p-0 print:shadow-none',
+      'print:mb-3 print:border-none print:p-0 print:shadow-none print:ring-none',
       // Dark mode
       'dark:border-white/5 dark:bg-slate-800/30 dark:backdrop-blur-sm dark:hover:border-white/10'
     )}
@@ -75,6 +76,7 @@ const CardItem: FC<TimelineListItemProps> = ({ title, info }) => (
     >
       <div className="flex flex-col gap-1 print:gap-0">
         <CardTitle
+          render={<h3 />}
           className={clsx(
             'text-xl leading-tight font-bold tracking-tight text-slate-800',
             'print:text-sm print:font-bold',
