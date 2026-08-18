@@ -1,0 +1,7 @@
+[install]
+# bun 1.3.14's default "hardlink" backend fails to extract next@16.2.2's
+# tarball on the Forgejo runner and inside the Dockerfile's bun:1-alpine
+# build stage ("error: Fail extracting tarball for next"). copyfile avoids
+# the bug; npm and a plain re-download of the same tarball both work fine,
+# so this is a bun bug, not a corrupted package.
+backend = "copyfile"
