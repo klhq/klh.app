@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Script from 'next/script';
 import { JetBrains_Mono, Geist } from 'next/font/google';
 import { ThemeProvider, ThemeScript } from '@klh-app/use-theme';
+import { TooltipProvider } from '@/components/ui/tooltip';
 import './globals.css';
 import { getThemeCSSVariables } from '@/theme';
 import { cn } from "@/lib/utils";
@@ -36,7 +37,9 @@ export default function RootLayout({
       </head>
       <body className={`${geist.variable} ${jetbrainsMono.variable} font-sans`}>
         <ThemeProvider attribute="class" value={{ dark: 'dark' }}>
-          {children}
+          <TooltipProvider delay={200}>
+            {children}
+          </TooltipProvider>
         </ThemeProvider>
         {process.env.NEXT_PUBLIC_UMAMI_ID && (
           <Script
