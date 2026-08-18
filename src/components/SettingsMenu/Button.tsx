@@ -1,15 +1,15 @@
-import { FC, ButtonHTMLAttributes } from 'react';
-import clsx from 'clsx';
+import { FC, ComponentProps } from 'react';
+import { Button as UiButton } from '@/components/ui/button';
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonProps extends ComponentProps<typeof UiButton> {
   className?: string;
 }
 
-const Button: FC<ButtonProps> = ({ className = '', children, ...props }) => {
+const Button: FC<ButtonProps> = ({ className, children, ...props }) => {
   return (
-    <button className={clsx('glass-button group', className)} {...props}>
+    <UiButton variant="glass" className={className} {...props}>
       {children}
-    </button>
+    </UiButton>
   );
 };
 
