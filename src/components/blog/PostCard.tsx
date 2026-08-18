@@ -1,5 +1,7 @@
 import { FC } from 'react';
 import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import clsx from 'clsx';
 import type { PostMeta } from '@/types/blog';
 
@@ -32,13 +34,15 @@ const PostCard: FC<PostCardProps> = ({ post, locale }) => (
           {post.description}
         </p>
       </div>
-      <span className="hover-arrow mt-2">→</span>
+      <span className="hover-arrow mt-2 inline-flex items-center">
+        <ArrowRight className="size-4" />
+      </span>
     </div>
     <div className="flex flex-wrap gap-1.5">
       {post.tags.map((tag) => (
-        <span key={tag} className="tag-pill">
+        <Badge key={tag} variant="secondary" className="font-mono text-[10px]">
           {tag}
-        </span>
+        </Badge>
       ))}
     </div>
   </Link>
