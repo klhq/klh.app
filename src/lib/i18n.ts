@@ -14,6 +14,12 @@ export type Locale = (typeof SUPPORTED_LOCALES)[number];
 const CONTENT_DIR = path.join(process.cwd(), 'src/content');
 const MESSAGES_DIR = path.join(process.cwd(), 'src/messages');
 
+// zh-CN has no Simplified Chinese resume content yet — reuse zh-TW's
+// Traditional Chinese base rather than falling straight through to English.
+const RESUME_LOCALE_FALLBACK: Partial<Record<Locale, Locale>> = {
+  'zh-CN': 'zh-TW',
+};
+
 async function readJsonFile<T>(filePath: string): Promise<T | null> {
   try {
     const raw = await readFile(filePath, 'utf8');
@@ -60,6 +66,15 @@ export async function getResumeData(locale: Locale): Promise<ResumeData> {
   const data = await readJsoncFile<ResumeData>(filePath);
   if (data) return data;
 
+  // Fallback to the mapped locale (e.g. zh-CN -> zh-TW), if any
+  const localeFallback = RESUME_LOCALE_FALLBACK[locale];
+  if (localeFallback) {
+    const fallback = await readJsoncFile<ResumeData>(
+      path.join(CONTENT_DIR, 'resume', localeFallback, 'data.jsonc')
+    );
+    if (fallback) return fallback;
+  }
+
   // Fallback to English
   if (locale !== DEFAULT_LOCALE) {
     const fallback = await readJsoncFile<ResumeData>(
@@ -77,6 +92,15 @@ export async function getResumeDictionary(
   const filePath = path.join(MESSAGES_DIR, 'resume-ui', `${locale}.json`);
   const data = await readJsonFile<ResumeDictionary>(filePath);
   if (data) return data;
+
+  // Fallback to the mapped locale (e.g. zh-CN -> zh-TW), if any
+  const localeFallback = RESUME_LOCALE_FALLBACK[locale];
+  if (localeFallback) {
+    const fallback = await readJsonFile<ResumeDictionary>(
+      path.join(MESSAGES_DIR, 'resume-ui', `${localeFallback}.json`)
+    );
+    if (fallback) return fallback;
+  }
 
   // Fallback to English
   if (locale !== DEFAULT_LOCALE) {

@@ -53,6 +53,12 @@ const GITHUB_HEADERS = (token: string) => ({
 
 const SUPPORTED_LOCALES = ['en', 'zh-TW', 'zh-CN'];
 
+// zh-CN has no Simplified Chinese resume content yet — reuse zh-TW's
+// Traditional Chinese base rather than falling straight through to English.
+const RESUME_LOCALE_FALLBACK: Partial<Record<string, string>> = {
+  'zh-CN': 'zh-TW',
+};
+
 const RESUME_TOP_LEVEL_KEYS = new Set([
   'profile',
   'socialLinks',
@@ -184,6 +190,10 @@ async function fetchResume(
   const results = await Promise.allSettled(
     SUPPORTED_LOCALES.map(async (locale) => {
       const baseRemotePath = `resume/base/${locale}/data.jsonc`;
+      const localeFallback = RESUME_LOCALE_FALLBACK[locale];
+      const localeFallbackPath = localeFallback
+        ? `resume/base/${localeFallback}/data.jsonc`
+        : null;
       const baseFallbackPath = 'resume/base/en/data.jsonc';
       const legacyRemotePath = `resume/${locale}/data.jsonc`;
       const legacyFallbackPath = 'resume/en/data.jsonc';
@@ -197,23 +207,34 @@ async function fetchResume(
           ref,
           token
         );
+        const localeFallbackBase =
+          localeBase === null && localeFallbackPath
+            ? await fetchOptionalFile(repo, localeFallbackPath, ref, token)
+            : null;
         const fallbackBase =
-          localeBase === null
+          localeBase === null && localeFallbackBase === null
             ? await fetchOptionalFile(repo, baseFallbackPath, ref, token)
             : null;
         const legacyLocaleBase =
-          localeBase === null && fallbackBase === null
+          localeBase === null &&
+          localeFallbackBase === null &&
+          fallbackBase === null
             ? await fetchOptionalFile(repo, legacyRemotePath, ref, token)
             : null;
         const legacyFallbackBase =
           localeBase === null &&
+          localeFallbackBase === null &&
           fallbackBase === null &&
           legacyLocaleBase === null
             ? await fetchOptionalFile(repo, legacyFallbackPath, ref, token)
             : null;
 
         const resolvedBase =
-          localeBase ?? fallbackBase ?? legacyLocaleBase ?? legacyFallbackBase;
+          localeBase ??
+          localeFallbackBase ??
+          fallbackBase ??
+          legacyLocaleBase ??
+          legacyFallbackBase;
 
         if (!resolvedBase) {
           console.info(`[fetch] Resume (${locale}): base not found, skipping.`);
@@ -224,6 +245,9 @@ async function fetchResume(
 
         if (variant !== 'default') {
           const patchRemotePath = `resume/variants/${variant}/${locale}.patch.jsonc`;
+          const patchLocaleFallbackPath = localeFallback
+            ? `resume/variants/${variant}/${localeFallback}.patch.jsonc`
+            : null;
           const patchFallbackPath = `resume/variants/${variant}/en.patch.jsonc`;
           const localePatch = await fetchOptionalFile(
             repo,
@@ -231,18 +255,27 @@ async function fetchResume(
             ref,
             token
           );
+          const localeFallbackPatch =
+            localePatch === null && patchLocaleFallbackPath
+              ? await fetchOptionalFile(repo, patchLocaleFallbackPath, ref, token)
+              : null;
           const fallbackPatch =
-            localePatch === null
+            localePatch === null && localeFallbackPatch === null
               ? await fetchOptionalFile(repo, patchFallbackPath, ref, token)
               : null;
-          const resolvedPatch = localePatch ?? fallbackPatch;
+          const resolvedPatch = localePatch ?? localeFallbackPatch ?? fallbackPatch;
 
           if (resolvedPatch) {
             const patch = parseJsoncObject(
               resolvedPatch,
               `Resume patch (${variant}/${locale})`
             );
-            validateResumePatch(patch, variant, localePatch ? locale : 'en');
+            const patchLocaleLabel = localePatch
+              ? locale
+              : localeFallbackPatch
+                ? (localeFallback as string)
+                : 'en';
+            validateResumePatch(patch, variant, patchLocaleLabel);
             merged = mergePatch(merged, patch) as Record<string, unknown>;
           }
         }
