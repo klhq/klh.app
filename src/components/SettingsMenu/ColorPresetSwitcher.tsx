@@ -1,6 +1,11 @@
 'use client';
 import { FC, useState, useEffect } from 'react';
 import { Palette } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from '@/components/ui/tooltip';
 import { THEME_PRESET_NAMES, getPresetCSSVariables } from '@/theme';
 import Button from './Button';
 import clsx from 'clsx';
@@ -51,6 +56,8 @@ const ColorPresetSwitcher: FC = () => {
     }
   };
 
+  const label = `Color System (${PRESET_LABELS[activePreset] || activePreset})`;
+
   return (
     <div className="relative flex items-center justify-end gap-2">
       {/* Preset dropdown list */}
@@ -86,15 +93,21 @@ const ColorPresetSwitcher: FC = () => {
         ))}
       </div>
 
-      <Button
-        onClick={() => setOpen(!open)}
-        title={`Color System (${PRESET_LABELS[activePreset] || activePreset})`}
-        aria-label="Switch color preset"
-        aria-expanded={open}
-        aria-haspopup="true"
-      >
-        <Palette className="size-6 transition-all duration-300 group-hover:rotate-12 group-active:scale-90" />
-      </Button>
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <Button
+              onClick={() => setOpen(!open)}
+              aria-label="Switch color preset"
+              aria-expanded={open}
+              aria-haspopup="true"
+            />
+          }
+        >
+          <Palette className="size-6 transition-all duration-300 group-hover:rotate-12 group-active:scale-90" />
+        </TooltipTrigger>
+        <TooltipContent side="left">{label}</TooltipContent>
+      </Tooltip>
     </div>
   );
 };

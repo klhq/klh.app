@@ -1,6 +1,11 @@
 'use client';
 import { FC } from 'react';
 import { Moon, Sun, SunMoon } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from '@/components/ui/tooltip';
 import { trackEvent } from '@/lib/analytics';
 import { useTheme } from '@klh-app/use-theme';
 import Button from './Button';
@@ -27,32 +32,44 @@ const ThemeSwitcher: FC = () => {
     trackEvent('theme_toggle', { theme: next });
   };
 
+  const label = LABELS[theme] ?? 'Toggle theme';
+
   const iconClasses =
     'absolute inset-0 size-6 transition-all duration-300 group-hover:rotate-12 group-active:scale-90';
 
   return (
-    <Button onClick={handleToggle} title={LABELS[theme] ?? 'Toggle theme'}>
-      <div className="relative size-6">
-        <SunMoon
-          className={clsx(
-            iconClasses,
-            theme === 'system' ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
-          )}
-        />
-        <Sun
-          className={clsx(
-            iconClasses,
-            theme === 'light' ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
-          )}
-        />
-        <Moon
-          className={clsx(
-            iconClasses,
-            theme === 'dark' ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
-          )}
-        />
-      </div>
-    </Button>
+    <Tooltip>
+      <TooltipTrigger
+        render={
+          <Button
+            onClick={handleToggle}
+            aria-label={label}
+          />
+        }
+      >
+        <div className="relative size-6">
+          <SunMoon
+            className={clsx(
+              iconClasses,
+              theme === 'system' ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
+            )}
+          />
+          <Sun
+            className={clsx(
+              iconClasses,
+              theme === 'light' ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
+            )}
+          />
+          <Moon
+            className={clsx(
+              iconClasses,
+              theme === 'dark' ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
+            )}
+          />
+        </div>
+      </TooltipTrigger>
+      <TooltipContent side="left">{label}</TooltipContent>
+    </Tooltip>
   );
 };
 
