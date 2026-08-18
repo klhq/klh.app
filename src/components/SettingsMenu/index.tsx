@@ -2,7 +2,7 @@
 import { FC, useState, useRef, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { MdSettings, MdClose } from 'react-icons/md';
+import { Settings, X } from 'lucide-react';
 import { trackEvent } from '@/lib/analytics';
 import ThemeSwitcher from './ThemeSwitcher';
 import ColorPresetSwitcher from './ColorPresetSwitcher';
@@ -143,13 +143,13 @@ const SettingsMenu: FC<SettingsMenuProps> = ({ locale }) => {
         aria-haspopup="true"
       >
         <div className="relative size-6">
-          <MdSettings
+          <Settings
             className={clsx(
               'absolute inset-0 size-6 transition-all duration-300 group-hover:rotate-45 group-active:scale-90',
               isOpen ? 'rotate-90 opacity-0' : 'rotate-0 opacity-100'
             )}
           />
-          <MdClose
+          <X
             className={clsx(
               'absolute inset-0 size-6 transition-all duration-300 group-hover:rotate-90 group-active:scale-90',
               isOpen ? 'rotate-0 opacity-100' : '-rotate-90 opacity-0'

@@ -1,5 +1,6 @@
 import { FC } from 'react';
 import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
 import clsx from 'clsx';
 
 interface BackButtonProps {
@@ -23,9 +24,7 @@ const BackButton: FC<BackButtonProps> = ({
       title={title}
       aria-label={title}
     >
-      <span className="transition-transform duration-200 group-hover:-translate-x-0.5">
-        ←
-      </span>
+      <ArrowLeft className="size-4 transition-transform duration-200 group-hover:-translate-x-0.5" />
     </Link>
   );
 };

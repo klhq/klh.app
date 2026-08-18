@@ -1,29 +1,35 @@
 'use client';
 
+import { ComponentType } from 'react';
 import Link from 'next/link';
 import clsx from 'clsx';
 import {
-  AiFillGithub,
-  AiFillLinkedin,
-} from 'react-icons/ai';
-import { FaBluesky, FaTelegram, FaXTwitter } from 'react-icons/fa6';
+  FileText,
+  SquarePen,
+  Globe,
+  ArrowRight,
+} from 'lucide-react';
 import {
-  HiOutlineDocumentText,
-  HiOutlinePencilSquare,
-  HiOutlineGlobeAlt,
-} from 'react-icons/hi2';
-import { IconType } from 'react-icons';
+  BlueskyIcon,
+  TelegramIcon,
+  XTwitterIcon,
+  GithubIcon,
+  LinkedinIcon,
+} from '@/components/icons';
 import { trackEvent } from '@/lib/analytics';
 
-const ICON_MAP: Record<string, IconType> = {
-  github: AiFillGithub,
-  linkedin: AiFillLinkedin,
-  bluesky: FaBluesky,
-  telegram: FaTelegram,
-  twitter: FaXTwitter,
-  document: HiOutlineDocumentText,
-  pencil: HiOutlinePencilSquare,
-  globe: HiOutlineGlobeAlt,
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- union of LucideIcon + custom SVG components
+type AnyIcon = ComponentType<any>;
+
+const ICON_MAP: Record<string, AnyIcon> = {
+  github: GithubIcon,
+  linkedin: LinkedinIcon,
+  bluesky: BlueskyIcon,
+  telegram: TelegramIcon,
+  twitter: XTwitterIcon,
+  document: FileText,
+  pencil: SquarePen,
+  globe: Globe,
 };
 
 export default function LinkPill({
@@ -39,7 +45,7 @@ export default function LinkPill({
   external?: boolean;
   muted?: boolean;
 }) {
-  const Icon = ICON_MAP[icon] ?? HiOutlineGlobeAlt;
+  const Icon = ICON_MAP[icon] ?? Globe;
 
   const classes = clsx(
     'group flex items-center gap-3 px-4',
@@ -63,7 +69,7 @@ export default function LinkPill({
       <Icon
         className={clsx(
           'transition-colors',
-          muted ? 'h-4 w-4' : 'h-5 w-5',
+          muted ? 'size-4' : 'size-5',
           muted
             ? 'text-slate-300 group-hover:text-slate-400 dark:text-slate-600 dark:group-hover:text-slate-500'
             : 'text-slate-400 group-hover:text-theme-600 dark:text-slate-500 dark:group-hover:text-theme-400'
@@ -82,11 +88,11 @@ export default function LinkPill({
       </span>
       <span
         className={clsx(
-          'hover-arrow',
+          'hover-arrow inline-flex items-center',
           muted && 'text-slate-200 dark:text-slate-700'
         )}
       >
-        →
+        <ArrowRight className="size-4" />
       </span>
     </>
   );

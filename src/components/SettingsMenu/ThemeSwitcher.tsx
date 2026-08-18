@@ -1,6 +1,6 @@
 'use client';
 import { FC } from 'react';
-import { MdDarkMode, MdLightMode, MdContrast } from 'react-icons/md';
+import { Moon, Sun, SunMoon } from 'lucide-react';
 import { trackEvent } from '@/lib/analytics';
 import { useTheme } from '@klh-app/use-theme';
 import Button from './Button';
@@ -33,19 +33,19 @@ const ThemeSwitcher: FC = () => {
   return (
     <Button onClick={handleToggle} title={LABELS[theme] ?? 'Toggle theme'}>
       <div className="relative size-6">
-        <MdContrast
+        <SunMoon
           className={clsx(
             iconClasses,
             theme === 'system' ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
           )}
         />
-        <MdLightMode
+        <Sun
           className={clsx(
             iconClasses,
             theme === 'light' ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
           )}
         />
-        <MdDarkMode
+        <Moon
           className={clsx(
             iconClasses,
             theme === 'dark' ? 'scale-100 opacity-100' : 'scale-0 opacity-0'

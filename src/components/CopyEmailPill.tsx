@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { AiOutlineMail, AiOutlineCheck } from 'react-icons/ai';
+import { Mail, Check, Copy } from 'lucide-react';
 import { trackEvent } from '@/lib/analytics';
 import clsx from 'clsx';
 
@@ -21,11 +21,11 @@ export default function CopyEmailPill({ email }: { email: string }) {
       className="glass-card-interactive group flex w-full cursor-pointer items-center gap-3 px-4 py-3 hover:scale-[1.01]"
     >
       {copied ? (
-        <AiOutlineCheck className="h-5 w-5 text-emerald-500 transition-colors" />
+        <Check className="size-5 text-emerald-500 transition-colors" />
       ) : (
-        <AiOutlineMail
+        <Mail
           className={clsx(
-            'h-5 w-5 text-slate-400 transition-colors',
+            'size-5 text-slate-400 transition-colors',
             'group-hover:text-theme-600',
             'dark:text-slate-500 dark:group-hover:text-theme-400'
           )}
@@ -41,8 +41,8 @@ export default function CopyEmailPill({ email }: { email: string }) {
       >
         {copied ? 'Copied!' : email}
       </span>
-      <span className="hover-arrow">
-        {copied ? '' : '⎘'}
+      <span className="hover-arrow inline-flex items-center">
+        {copied ? <Check className="size-3.5 text-emerald-500" /> : <Copy className="size-3.5" />}
       </span>
     </button>
   );

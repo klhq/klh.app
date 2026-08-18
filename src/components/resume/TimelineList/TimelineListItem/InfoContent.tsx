@@ -2,7 +2,6 @@
 import { FC } from 'react';
 import type { Content } from '@/types/resume';
 import { trackEvent } from '@/lib/analytics';
-import { BsDot } from 'react-icons/bs';
 
 const onInfoLinkClick = (url: string, label?: string) => {
   trackEvent('outbound_click', { source: 'info', url, label });
@@ -20,8 +19,8 @@ const InfoContent: FC<Content> = ({ title, url, details }) => {
           const detailUrl = detail.url;
           return (
             <li key={i} className="flex gap-0.5">
-              <div className="flex h-6 w-4.5 justify-center pt-px">
-                <BsDot size="18px" />
+              <div className="flex h-6 w-4.5 items-center justify-center">
+                <span className="size-1.5 shrink-0 rounded-full bg-slate-400 dark:bg-slate-500" />
               </div>
               {detailUrl ? (
                 <a
