@@ -1,11 +1,12 @@
 import type { Metadata } from 'next';
 import Script from 'next/script';
-import { Inter, JetBrains_Mono } from 'next/font/google';
+import { JetBrains_Mono, Geist } from 'next/font/google';
 import { ThemeProvider, ThemeScript } from '@klh-app/use-theme';
 import './globals.css';
 import { getThemeCSSVariables } from '@/theme';
+import { cn } from "@/lib/utils";
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
   variable: '--font-mono',
@@ -25,7 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      className="print:hidden"
+      className={cn("print:hidden", "font-sans", geist.variable)}
       lang="en"
       style={themeCSSVariables as React.CSSProperties}
       suppressHydrationWarning
@@ -33,7 +34,7 @@ export default function RootLayout({
       <head>
         <ThemeScript attribute="class" value={{ dark: 'dark' }} />
       </head>
-      <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans`}>
+      <body className={`${geist.variable} ${jetbrainsMono.variable} font-sans`}>
         <ThemeProvider attribute="class" value={{ dark: 'dark' }}>
           {children}
         </ThemeProvider>
