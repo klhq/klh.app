@@ -20,23 +20,22 @@ const BackButton: FC<BackButtonProps> = ({
   className = '',
 }) => {
   return (
-    <Tooltip>
-      <TooltipTrigger
-        render={
-          <Link
-            href={href}
-            className={clsx(
-              'glass-button group fixed top-4 left-4 z-50 print:hidden',
-              className
-            )}
-            aria-label={title}
-          />
-        }
-      >
-        <ArrowLeft className="size-4 transition-transform duration-200 group-hover:-translate-x-0.5" />
-      </TooltipTrigger>
-      <TooltipContent side="right">{title}</TooltipContent>
-    </Tooltip>
+    <div className={clsx('fixed top-4 left-4 z-50 print:hidden', className)}>
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <Link
+              href={href}
+              className="glass-button group"
+              aria-label={title}
+            />
+          }
+        >
+          <ArrowLeft className="size-4 transition-transform duration-200 group-hover:-translate-x-0.5" />
+        </TooltipTrigger>
+        <TooltipContent side="right">{title}</TooltipContent>
+      </Tooltip>
+    </div>
   );
 };
 
