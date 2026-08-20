@@ -9,6 +9,23 @@ jobs:
   build-and-deploy:
     runs-on: workhorse
     steps:
+      - name: Verify required secrets are set
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+          REGISTRY_PUSH_TOKEN: ${{ secrets.REGISTRY_PUSH_TOKEN }}
+          KOMODO_API_KEY: ${{ secrets.KOMODO_API_KEY }}
+          KOMODO_API_SECRET: ${{ secrets.KOMODO_API_SECRET }}
+        run: |
+          missing=""
+          [ -z "$GH_PAT" ] && missing="$missing GH_PAT"
+          [ -z "$REGISTRY_PUSH_TOKEN" ] && missing="$missing REGISTRY_PUSH_TOKEN"
+          [ -z "$KOMODO_API_KEY" ] && missing="$missing KOMODO_API_KEY"
+          [ -z "$KOMODO_API_SECRET" ] && missing="$missing KOMODO_API_SECRET"
+          if [ -n "$missing" ]; then
+            echo "::error::Missing required repo secret(s):$missing — see infra/docs/komodo-api-reference.md #2 for the onboarding checklist." >&2
+            exit 1
+          fi
+
       - name: Checkout code
         uses: actions/checkout@v4
         with:
