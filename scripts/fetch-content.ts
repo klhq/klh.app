@@ -1,4 +1,4 @@
-import { mkdir, stat, writeFile, rm } from 'node:fs/promises';
+import { mkdir, readFile, stat, writeFile, rm } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { parse as parseJsonc, printParseErrorCode } from 'jsonc-parser';
@@ -296,6 +296,73 @@ async function fetchResume(
   }
 }
 
+// workExperience/education keys come from klh-content and are looked up
+// against companyNames/collegeNames in src/messages/resume-ui, which klh-app
+// maintains independently. A key with no entry silently renders as its raw
+// key instead of failing, so this checks the pairing right after fetch
+// instead of waiting for someone to notice it live.
+async function checkResumeDisplayNames(): Promise<void> {
+  const errors: string[] = [];
+
+  for (const locale of SUPPORTED_LOCALES) {
+    const dataPath = path.join('src/content/resume', locale, 'data.jsonc');
+    const dictLocale = RESUME_LOCALE_FALLBACK[locale] ?? locale;
+    const dictPath = path.join('src/messages/resume-ui', `${dictLocale}.json`);
+
+    let resumeData: Record<string, unknown>;
+    let dictionary: {
+      companyNames?: Record<string, string>;
+      collegeNames?: Record<string, string>;
+    };
+
+    try {
+      resumeData = parseJsoncObject(
+        await readFile(dataPath, 'utf8'),
+        `Resume data (${locale})`
+      );
+    } catch {
+      continue; // fetchResume already skips/reports missing locales
+    }
+
+    try {
+      dictionary = JSON.parse(await readFile(dictPath, 'utf8'));
+    } catch {
+      errors.push(
+        `locale=${locale}: missing or invalid ${dictPath} (needed to check companyNames/collegeNames)`
+      );
+      continue;
+    }
+
+    const companyNames = dictionary.companyNames ?? {};
+    for (const key of Object.keys(
+      (resumeData.workExperience as Record<string, unknown>) ?? {}
+    )) {
+      if (!(key in companyNames)) {
+        errors.push(
+          `locale=${locale}: workExperience key '${key}' has no entry in ${dictPath}'s companyNames (also check klh-content's jsonc_to_markdown.company_map)`
+        );
+      }
+    }
+
+    const collegeNames = dictionary.collegeNames ?? {};
+    for (const key of Object.keys(
+      (resumeData.education as Record<string, unknown>) ?? {}
+    )) {
+      if (!(key in collegeNames)) {
+        errors.push(
+          `locale=${locale}: education key '${key}' has no entry in ${dictPath}'s collegeNames`
+        );
+      }
+    }
+  }
+
+  if (errors.length > 0) {
+    throw new Error(
+      `[fetch] Resume display-name check failed:\n  - ${errors.join('\n  - ')}`
+    );
+  }
+}
+
 async function fetchLanding(
   repo: string,
   ref: string,
@@ -490,6 +557,7 @@ async function main(): Promise<void> {
       fetchBlogPosts(repo, ref, token),
       fetchQuotes(repo, ref, token),
     ]);
+    await checkResumeDisplayNames();
   } catch (err) {
     if (!isStrict && hasLocalContent) {
       const message = err instanceof Error ? err.message : String(err);
