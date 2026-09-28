@@ -52,8 +52,8 @@
     "printText": "15 17 17"
   },
   "apple": {
-    "primary500": "0 0 0",
-    "primary600": "0 0 0",
+    "primary500": "10 132 255",
+    "primary600": "0 122 255",
     "primary400": "142 142 147",
     "gradientFromLight": "0 0 0",
     "gradientViaLight": "28 28 30",
