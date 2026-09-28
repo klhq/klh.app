@@ -1,4 +1,4 @@
-export type Company = 'freelance' | 'linker' | 'appier' | 'cdc' | 'cronos';
+export type Company = 'albatron' | 'freelance' | 'linker' | 'appier' | 'cdc' | 'cronos';
 
 export type College = 'ntu' | 'nchu';
 
