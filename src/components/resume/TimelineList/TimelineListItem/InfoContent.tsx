@@ -18,26 +18,28 @@ const InfoContent: FC<Content> = ({ title, url, details }) => {
         {details?.map((detail, i) => {
           const detailUrl = detail.url;
           return (
-            <li key={i} className="flex gap-0.5">
-              <div className="flex h-6 w-4.5 items-center justify-center">
-                <span className="size-1.5 shrink-0 rounded-full bg-slate-400 dark:bg-slate-500" />
-              </div>
-              {detailUrl ? (
-                <a
-                  href={detailUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => handleClick(detailUrl, detail.title)}
-                >
-                  <div className="text-primary-600 dark:text-primary-400 opacity-80 print:opacity-100">
+            <li key={i} className="flex items-start gap-2">
+              <span
+                aria-hidden="true"
+                className="mt-[0.5em] size-1.5 shrink-0 rounded-full bg-slate-400 dark:bg-slate-500"
+              />
+              <div className="min-w-0 flex-1">
+                {detailUrl ? (
+                  <a
+                    href={detailUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => handleClick(detailUrl, detail.title)}
+                    className="text-primary-600 dark:text-primary-400 opacity-80 print:opacity-100"
+                  >
                     {detail.title}
-                  </div>
-                </a>
-              ) : (
-                <div className="opacity-80 print:opacity-100">
-                  {detail.title}
-                </div>
-              )}
+                  </a>
+                ) : (
+                  <span className="opacity-80 print:opacity-100">
+                    {detail.title}
+                  </span>
+                )}
+              </div>
             </li>
           );
         })}
