@@ -15,7 +15,7 @@ const SkillTag: FC<SkillTagProps> = ({ level, skill }) => {
       className={clsx(
         'h-auto px-2.5 py-1 font-mono text-xs transition-all duration-200 hover:scale-105 rounded-md',
         // Print styles
-        'print:border-slate-300 print:bg-transparent print:p-0.5 print:px-1.5 print:text-[10px]',
+        'print:border-slate-300 print:bg-transparent print:p-0.5 print:px-1.5 print:text-xs',
         {
           // Proficiency (Theme Colored)
           [clsx(

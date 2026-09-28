@@ -26,7 +26,7 @@ const Bios: FC<BiosProps> = ({ profile }) => (
           'dark:text-theme-400',
           'sm:text-2xl',
           // Print Styles
-          'print:text-base print:font-medium'
+          'print:text-lg print:font-medium'
         )}
       >
         {profile.target}
@@ -37,7 +37,7 @@ const Bios: FC<BiosProps> = ({ profile }) => (
         'max-w-3xl text-base leading-relaxed text-slate-600',
         'dark:text-slate-300',
         // Print Styles
-        'print:text-[10px] print:leading-normal'
+        'print:text-[13px] print:leading-normal'
       )}
     >
       {profile.summary}

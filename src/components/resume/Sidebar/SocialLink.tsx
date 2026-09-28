@@ -60,9 +60,9 @@ const SocialLinkComponent: FC<SocialLinkProps> = ({ socialLink, printEmail }) =>
           'dark:group-hover:bg-theme-400/20 dark:border-slate-700 dark:bg-slate-800/50'
         )}
       >
-        <Icon className="size-5 print:size-3" />
+        <Icon className="size-5 print:size-4" />
       </div>
-      <div className="text-sm break-all print:text-[10px] print:leading-tight">
+      <div className="text-sm break-all print:text-[13px] print:leading-tight">
         <span className="print:hidden">
           {socialLink.name === 'Email' ? socialLink.link : socialLink.name}
         </span>

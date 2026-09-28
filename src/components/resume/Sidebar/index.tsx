@@ -37,7 +37,7 @@ const Sidebar: FC<SidebarProps> = ({
       'md:border-r md:border-b-0 md:p-8',
       // Print Styles
       'print:gap-2 print:border-r print:border-b-0 print:border-slate-300',
-      'print:bg-slate-50 print:bg-none print:p-4 print:text-[10px] print:text-slate-900'
+      'print:bg-slate-50 print:bg-none print:p-4 print:text-[13px] print:text-slate-900'
     )}
   >
     {/* Contact Section */}
@@ -46,7 +46,7 @@ const Sidebar: FC<SidebarProps> = ({
         className={clsx(
           'mb-4 text-xs font-bold tracking-wider text-slate-400 uppercase',
           'dark:text-slate-500',
-          'print:mb-2 print:border-b print:border-slate-300 print:pb-1 print:text-[11px] print:text-slate-600'
+          'print:mb-2 print:border-b print:border-slate-300 print:pb-1 print:text-sm print:text-slate-600'
         )}
       >
         {dictionary.sections.contact}
@@ -64,7 +64,7 @@ const Sidebar: FC<SidebarProps> = ({
         className={clsx(
           'mb-4 text-xs font-bold tracking-wider text-slate-400 uppercase',
           'dark:text-slate-500',
-          'print:mb-2 print:break-after-avoid print:border-b print:border-slate-300 print:pb-1 print:text-[11px] print:text-slate-600'
+          'print:mb-2 print:break-after-avoid print:border-b print:border-slate-300 print:pb-1 print:text-sm print:text-slate-600'
         )}
       >
         {dictionary.sections.skills}

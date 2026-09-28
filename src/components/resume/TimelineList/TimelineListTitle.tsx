@@ -24,7 +24,7 @@ const TimelineListTitle: FC<TimelineListTitleProps> = ({
         className={clsx(
           'pb-2 text-sm font-bold tracking-[0.2em] text-slate-500 uppercase',
           'dark:text-slate-500',
-          'print:text-xs'
+          'print:text-sm'
         )}
       >
         {children}

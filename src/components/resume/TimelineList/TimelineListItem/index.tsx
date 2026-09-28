@@ -79,7 +79,7 @@ const CardItem: FC<TimelineListItemProps> = ({ title, info }) => (
           render={<h3 />}
           className={clsx(
             'text-xl leading-tight font-bold tracking-tight text-slate-800',
-            'print:text-sm print:font-bold',
+            'print:text-base print:font-bold',
             'dark:text-slate-100'
           )}
         >
@@ -89,7 +89,7 @@ const CardItem: FC<TimelineListItemProps> = ({ title, info }) => (
           <div
             className={clsx(
               'text-theme-600 text-base font-semibold',
-              'print:text-xs print:font-semibold',
+              'print:text-sm print:font-semibold',
               'dark:text-theme-400'
             )}
           >
@@ -101,7 +101,7 @@ const CardItem: FC<TimelineListItemProps> = ({ title, info }) => (
         variant="secondary"
         className={clsx(
           'shrink-0 font-mono text-xs whitespace-nowrap text-slate-500 rounded px-2 py-0.5 font-normal',
-          'print:self-start print:bg-transparent print:p-0 print:text-[10px] print:font-medium print:text-slate-500 print:border-0',
+          'print:self-start print:bg-transparent print:p-0 print:text-[13px] print:font-medium print:text-slate-500 print:border-0',
           'dark:bg-slate-700 dark:text-slate-400'
         )}
       >
@@ -113,7 +113,7 @@ const CardItem: FC<TimelineListItemProps> = ({ title, info }) => (
     <div
       className={clsx(
         'flex items-center gap-2 font-mono text-xs text-slate-500',
-        'print:mb-1 print:text-[10px]',
+        'print:mb-1 print:text-[13px]',
         'dark:text-slate-400'
       )}
     >
@@ -130,7 +130,7 @@ const CardItem: FC<TimelineListItemProps> = ({ title, info }) => (
     <CardContent
       className={clsx(
         'p-0 space-y-2 text-[13px] leading-relaxed text-slate-700',
-        'print:space-y-0.5 print:text-[10px] print:leading-normal',
+        'print:space-y-0.5 print:text-[13px] print:leading-normal',
         'dark:text-slate-300'
       )}
     >

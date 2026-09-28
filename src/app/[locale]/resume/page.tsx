@@ -99,7 +99,7 @@ export default async function ResumePage({ params }: ResumePageProps) {
           className={clsx(
             'grid grid-cols-1',
             'md:grid-cols-[300px_1fr]',
-            'print:grid-cols-[240px_1fr]'
+            'print:grid-cols-[260px_1fr]'
           )}
         >
           <Sidebar
@@ -115,7 +115,7 @@ export default async function ResumePage({ params }: ResumePageProps) {
             className={clsx(
               'animate-fade-in-up flex flex-col gap-8 p-6',
               'md:p-12',
-              'print:gap-4 print:p-4 print:text-[10px]'
+              'print:gap-4 print:p-4 print:text-[13px]'
             )}
           >
             <TimelineList
