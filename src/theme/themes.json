@@ -152,5 +152,22 @@
     "blob4": "4 0 255",
     "printAccent": "27 192 210",
     "printText": "15 23 42"
+  },
+  "appier": {
+    "primary500": "29 46 255",
+    "primary600": "22 38 217",
+    "primary400": "0 212 255",
+    "gradientFromLight": "10 14 39",
+    "gradientViaLight": "29 46 255",
+    "gradientToLight": "0 212 255",
+    "gradientFromDark": "248 250 252",
+    "gradientViaDark": "29 46 255",
+    "gradientToDark": "0 212 255",
+    "blob1": "29 46 255",
+    "blob2": "0 212 255",
+    "blob3": "22 38 217",
+    "blob4": "29 46 255",
+    "printAccent": "22 38 217",
+    "printText": "16 17 48"
   }
 }

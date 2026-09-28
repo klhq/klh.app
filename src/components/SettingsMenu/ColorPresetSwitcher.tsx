@@ -25,6 +25,7 @@ const PRESET_LABELS: Record<string, string> = {
   spotify: 'Spotify',
   canva: 'Canva',
   'trust-wallet': 'Trust Wallet',
+  appier: 'Appier',
 };
 
 const ColorPresetSwitcher: FC = () => {
