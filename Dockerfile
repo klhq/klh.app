@@ -28,8 +28,6 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
-ENV PRINT_EMAIL=lance@klh.app
-ENV GRAVATAR_HASH=18c3d026295ecf736fc2e8a027163e5718e106d5643774c2d1ebe421458b3b58
 
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
