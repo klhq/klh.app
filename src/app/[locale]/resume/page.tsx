@@ -121,7 +121,6 @@ export default async function ResumePage({ params }: ResumePageProps) {
             <TimelineList
               title={dictionary.sections.workExperience}
               data={workExperience}
-              nameMap={dictionary.companyNames}
             />
           </main>
         </div>

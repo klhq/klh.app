@@ -85,7 +85,6 @@ const Sidebar: FC<SidebarProps> = ({
     <TimelineList
       title={dictionary.sections.education}
       data={education}
-      nameMap={dictionary.collegeNames}
       compact
     />
   </aside>

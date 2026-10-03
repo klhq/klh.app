@@ -1,4 +1,4 @@
-import type { College, Company, SkillLevel } from './resume';
+import type { SkillLevel } from './resume';
 
 export type ResumeDictionary = {
   pageTitle: string;
@@ -9,6 +9,4 @@ export type ResumeDictionary = {
     education: string;
   };
   skillLevels: Record<SkillLevel, string>;
-  companyNames: Record<Company, string>;
-  collegeNames: Record<College, string>;
 };

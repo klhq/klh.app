@@ -32,6 +32,8 @@ export type ExperienceInfo = {
   location: string;
   from: string;
   to: string;
+  company?: string;
+  institution?: string;
   position?: string;
   content?: ReadonlyArray<Content>;
   degree?: string;

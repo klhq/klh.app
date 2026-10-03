@@ -296,25 +296,17 @@ async function fetchResume(
   }
 }
 
-// workExperience/education keys come from klh-content and are looked up
-// against companyNames/collegeNames in src/messages/resume-ui, which klh-app
-// maintains independently. A key with no entry silently renders as its raw
-// key instead of failing, so this checks the pairing right after fetch
-// instead of waiting for someone to notice it live.
+// company/institution now travel inline on each workExperience/education
+// entry (klh-content enforces them via schema `required`), so klh-app no
+// longer keeps its own display-name lookup. This just guards against a
+// merge/patch step here accidentally dropping the field before render.
 async function checkResumeDisplayNames(): Promise<void> {
   const errors: string[] = [];
 
   for (const locale of SUPPORTED_LOCALES) {
     const dataPath = path.join('src/content/resume', locale, 'data.jsonc');
-    const dictLocale = RESUME_LOCALE_FALLBACK[locale] ?? locale;
-    const dictPath = path.join('src/messages/resume-ui', `${dictLocale}.json`);
 
     let resumeData: Record<string, unknown>;
-    let dictionary: {
-      companyNames?: Record<string, string>;
-      collegeNames?: Record<string, string>;
-    };
-
     try {
       resumeData = parseJsoncObject(
         await readFile(dataPath, 'utf8'),
@@ -324,33 +316,26 @@ async function checkResumeDisplayNames(): Promise<void> {
       continue; // fetchResume already skips/reports missing locales
     }
 
-    try {
-      dictionary = JSON.parse(await readFile(dictPath, 'utf8'));
-    } catch {
-      errors.push(
-        `locale=${locale}: missing or invalid ${dictPath} (needed to check companyNames/collegeNames)`
-      );
-      continue;
-    }
-
-    const companyNames = dictionary.companyNames ?? {};
-    for (const key of Object.keys(
-      (resumeData.workExperience as Record<string, unknown>) ?? {}
+    for (const [key, entry] of Object.entries(
+      (resumeData.workExperience as Record<string, Record<string, unknown>>) ??
+        {}
     )) {
-      if (!(key in companyNames)) {
+      if (typeof entry.company !== 'string' || entry.company.length === 0) {
         errors.push(
-          `locale=${locale}: workExperience key '${key}' has no entry in ${dictPath}'s companyNames (also check klh-content's jsonc_to_markdown.company_map)`
+          `locale=${locale}: workExperience key '${key}' is missing a non-empty 'company' field`
         );
       }
     }
 
-    const collegeNames = dictionary.collegeNames ?? {};
-    for (const key of Object.keys(
-      (resumeData.education as Record<string, unknown>) ?? {}
+    for (const [key, entry] of Object.entries(
+      (resumeData.education as Record<string, Record<string, unknown>>) ?? {}
     )) {
-      if (!(key in collegeNames)) {
+      if (
+        typeof entry.institution !== 'string' ||
+        entry.institution.length === 0
+      ) {
         errors.push(
-          `locale=${locale}: education key '${key}' has no entry in ${dictPath}'s collegeNames`
+          `locale=${locale}: education key '${key}' is missing a non-empty 'institution' field`
         );
       }
     }

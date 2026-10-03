@@ -10,17 +10,5 @@
     "proficiency": "Proficient in",
     "familiar": "Familiar with",
     "knowledge": "Knowledge of"
-  },
-  "companyNames": {
-    "albatron": "Albatron Technology",
-    "freelance": "Freelance",
-    "linker": "Linker Networks Inc.",
-    "appier": "Appier Inc.",
-    "cdc": "Crypto.com",
-    "cronos": "Cronos Labs"
-  },
-  "collegeNames": {
-    "ntu": "National Taiwan University",
-    "nchu": "National Chung Hsing University"
   }
 }
