@@ -19,6 +19,26 @@ test('draft articles are unavailable by direct slug and in listings', async () =
   }
 });
 
+test('explicit draft preview includes drafts in listings and direct lookup', async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), 'blog-preview-'));
+  try {
+    await writeFile(
+      path.join(dir, 'private.mdx'),
+      '---\ntitle: Private\ndescription: Secret\ndate: "2026-10-10"\ndraft: true\n---\nSecret body'
+    );
+    const options = { includeDrafts: true };
+    assert.equal((await getPostBySlug('private', dir, options))?.draft, true);
+    assert.deepEqual(
+      (await getAllPosts(dir, options)).map((post) => post.slug),
+      ['private']
+    );
+    assert.equal(await getPostBySlug('private', dir), null);
+    assert.deepEqual(await getAllPosts(dir), []);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
 test('invalid article dates fail with the slug and field instead of rendering', async () => {
   const dir = await mkdtemp(path.join(tmpdir(), 'blog-'));
   try {

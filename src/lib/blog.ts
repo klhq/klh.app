@@ -5,11 +5,18 @@ import { parsePost } from './blog-frontmatter';
 
 const BLOG_DIR = path.join(process.cwd(), 'src/content/blog');
 
+export interface BlogReadingOptions {
+  includeDrafts?: boolean;
+}
+
 function isMissing(error: unknown): boolean {
   return error instanceof Error && 'code' in error && error.code === 'ENOENT';
 }
 
-export async function getAllPosts(directory = BLOG_DIR): Promise<PostMeta[]> {
+export async function getAllPosts(
+  directory = BLOG_DIR,
+  options: BlogReadingOptions = {}
+): Promise<PostMeta[]> {
   let files: string[];
   try {
     files = await readdir(directory);
@@ -35,13 +42,14 @@ export async function getAllPosts(directory = BLOG_DIR): Promise<PostMeta[]> {
       })
   );
   return posts
-    .filter((post) => !post.draft)
+    .filter((post) => options.includeDrafts || !post.draft)
     .sort((a, b) => b.date.localeCompare(a.date));
 }
 
 export async function getPostBySlug(
   slug: string,
-  directory = BLOG_DIR
+  directory = BLOG_DIR,
+  options: BlogReadingOptions = {}
 ): Promise<Post | null> {
   if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(slug)) return null;
   let raw: string;
@@ -52,11 +60,13 @@ export async function getPostBySlug(
     throw error;
   }
   const post = parsePost(raw, slug);
-  return post.draft ? null : post;
+  return post.draft && !options.includeDrafts ? null : post;
 }
 
-export async function getAllTags(): Promise<Map<string, number>> {
-  const posts = await getAllPosts();
+export async function getAllTags(
+  options: BlogReadingOptions = {}
+): Promise<Map<string, number>> {
+  const posts = await getAllPosts(undefined, options);
   const tags = new Map<string, number>();
   for (const post of posts) {
     for (const tag of post.tags) tags.set(tag, (tags.get(tag) ?? 0) + 1);

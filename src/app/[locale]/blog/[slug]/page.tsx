@@ -5,13 +5,16 @@ import { getAllPosts, getPostBySlug } from '@/lib/blog';
 import MdxContent from '@/components/blog/MdxContent';
 import clsx from 'clsx';
 import { getArticleMetadata } from '@/lib/blog-discovery';
+import { isPreviewMode } from '@/lib/preview';
 
 interface PostPageProps {
   params: Promise<{ locale: string; slug: string }>;
 }
 
 export async function generateStaticParams() {
-  const posts = await getAllPosts();
+  const posts = await getAllPosts(undefined, {
+    includeDrafts: isPreviewMode(),
+  });
   return posts.map((post) => ({ slug: post.slug }));
 }
 
@@ -19,14 +22,18 @@ export async function generateMetadata({
   params,
 }: PostPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const post = await getPostBySlug(slug);
+  const post = await getPostBySlug(slug, undefined, {
+    includeDrafts: isPreviewMode(),
+  });
   if (!post) notFound();
   return getArticleMetadata(post);
 }
 
 export default async function PostPage({ params }: PostPageProps) {
   const { locale, slug } = await params;
-  const post = await getPostBySlug(slug);
+  const post = await getPostBySlug(slug, undefined, {
+    includeDrafts: isPreviewMode(),
+  });
 
   if (!post) notFound();
 
@@ -53,6 +60,11 @@ export default async function PostPage({ params }: PostPageProps) {
         </Link>
 
         <header className="animate-fade-in-down mb-8">
+          {post.draft && (
+            <p className="mb-3 font-mono text-xs text-amber-700 dark:text-amber-400">
+              Draft preview · Not published
+            </p>
+          )}
           <div className="mb-2 font-mono text-[10px] text-slate-400 dark:text-slate-500">
             {new Date(post.date).toLocaleDateString(locale, {
               year: 'numeric',
