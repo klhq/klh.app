@@ -4,6 +4,10 @@ import { parsePost } from '../src/lib/blog-frontmatter';
 import { getArticleNavigation } from '../src/lib/blog-navigation';
 import type { PostMeta } from '../src/types/blog';
 import { getSeriesNavigation, validateSeries } from '../src/lib/blog-series';
+import {
+  estimateReadingMinutes,
+  formatBlogDate,
+} from '../src/lib/blog-reading';
 
 const raw = (extra: string, body = 'word '.repeat(440)) =>
   `---\ntitle: Article\ndescription: Example\ndate: '2026-10-10'\n${extra}\n---\n${body}`;
@@ -20,6 +24,22 @@ test('reading metadata calculates minutes and validates updated calendar dates',
     () => parsePost(raw("updated: '2026-10-09'"), 'article'),
     /article.*updated/
   );
+});
+
+test('reading estimates cover CJK, mixed prose, empty articles and fenced code', () => {
+  assert.equal(estimateReadingMinutes(''), 1);
+  assert.equal(estimateReadingMinutes('文'.repeat(700)), 2);
+  assert.equal(
+    estimateReadingMinutes('word '.repeat(220) + '文'.repeat(350)),
+    2
+  );
+  assert.equal(
+    estimateReadingMinutes(
+      'Short text\n```js\n' + 'code '.repeat(2000) + '\n```'
+    ),
+    1
+  );
+  assert.equal(formatBlogDate('2026-10-10', 'en-US'), 'Oct 10, 2026');
 });
 
 const post = (
@@ -56,6 +76,21 @@ test('footer navigation orders articles and ranks related posts without revealin
     getArticleNavigation(current, posts, { includeDrafts: true }).related.some(
       (p) => p.slug === 'secret'
     )
+  );
+});
+
+test('related articles stop at three with deterministic date and slug ties', () => {
+  const current = post('current', '2026-10-10', ['code']);
+  const navigation = getArticleNavigation(current, [
+    current,
+    post('c', '2026-10-09', ['code']),
+    post('b', '2026-10-09', ['code']),
+    post('a', '2026-10-09', ['code']),
+    post('newest', '2026-10-11', ['code']),
+  ]);
+  assert.deepEqual(
+    navigation.related.map((item) => item.slug),
+    ['newest', 'a', 'b']
   );
 });
 
