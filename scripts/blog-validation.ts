@@ -4,6 +4,8 @@ import { compile } from '@mdx-js/mdx';
 import remarkGfm from 'remark-gfm';
 import { parsePost } from '../src/lib/blog-frontmatter';
 import { BLOG_IMAGE_PATTERN } from '../src/lib/blog-assets';
+import { validateSeries } from '../src/lib/blog-series';
+import type { PostMeta } from '../src/types/blog';
 
 interface ContentNode {
   type: string;
@@ -76,6 +78,7 @@ export async function validateBlogDirectory(
     recursive: true,
   });
   let count = 0;
+  const posts: PostMeta[] = [];
   for (const entry of entries) {
     if (!entry.name.endsWith('.mdx')) continue;
     const relative = path.relative(
@@ -99,6 +102,8 @@ export async function validateBlogDirectory(
       );
     }
     count++;
+    posts.push(post);
   }
+  validateSeries(posts);
   return count;
 }

@@ -8,6 +8,7 @@ import { getArticleMetadata } from '@/lib/blog-discovery';
 import { isPreviewMode } from '@/lib/preview';
 import PostDetails from '@/components/blog/PostDetails';
 import ArticleFooter from '@/components/blog/ArticleFooter';
+import SeriesNavigation from '@/components/blog/SeriesNavigation';
 
 interface PostPageProps {
   params: Promise<{ locale: string; slug: string }>;
@@ -94,6 +95,12 @@ export default async function PostPage({ params }: PostPageProps) {
         </header>
 
         <div className="animate-fade-in-up">
+          <SeriesNavigation
+            post={post}
+            posts={posts}
+            locale={locale}
+            options={options}
+          />
           <MdxContent source={post.content} title={post.title} />
         </div>
         <ArticleFooter

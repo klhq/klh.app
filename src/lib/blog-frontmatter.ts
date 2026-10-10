@@ -56,6 +56,27 @@ export function parsePost(raw: string, slug: string): Post {
     (typeof data.image !== 'string' || !data.image.trim())
   )
     fail('image');
+  let series: Post['series'];
+  if (data.series !== undefined) {
+    const value = data.series;
+    if (
+      !value ||
+      typeof value !== 'object' ||
+      Array.isArray(value) ||
+      Object.keys(value).some((key) => !['id', 'title', 'order'].includes(key))
+    )
+      fail('series');
+    if (
+      typeof value.id !== 'string' ||
+      !/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(value.id)
+    )
+      fail('series.id');
+    if (typeof value.title !== 'string' || !value.title.trim())
+      fail('series.title');
+    if (!Number.isSafeInteger(value.order) || value.order < 1)
+      fail('series.order');
+    series = { id: value.id, title: value.title.trim(), order: value.order };
+  }
   let links: Post['links'];
   if (data.links !== undefined) {
     if (
@@ -91,6 +112,7 @@ export function parsePost(raw: string, slug: string): Post {
     updated,
     readingMinutes: estimateReadingMinutes(content),
     links,
+    series,
     tags: [
       ...new Set<string>((data.tags ?? []).map((tag: string) => tag.trim())),
     ],

@@ -6,6 +6,7 @@ export type PostMeta = {
   updated?: string;
   readingMinutes?: number;
   links?: { github?: string; demo?: string };
+  series?: { id: string; title: string; order: number };
   tags: string[];
   image?: string;
   draft?: boolean;

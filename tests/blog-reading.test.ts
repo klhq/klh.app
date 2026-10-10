@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { parsePost } from '../src/lib/blog-frontmatter';
 import { getArticleNavigation } from '../src/lib/blog-navigation';
 import type { PostMeta } from '../src/types/blog';
+import { getSeriesNavigation, validateSeries } from '../src/lib/blog-series';
 
 const raw = (extra: string, body = 'word '.repeat(440)) =>
   `---\ntitle: Article\ndescription: Example\ndate: '2026-10-10'\n${extra}\n---\n${body}`;
@@ -74,5 +75,54 @@ test('project links accept web URLs and reject executable URL schemes', () => {
   assert.throws(
     () => parsePost(raw('links: wrong'), 'article'),
     /article.*links/
+  );
+});
+
+test('series metadata validates order and navigates visible parts rather than publication dates', () => {
+  const current = parsePost(
+    raw('series:\n  id: building-blog\n  title: Building a blog\n  order: 2'),
+    'second'
+  );
+  assert.equal(current.series?.order, 2);
+  assert.throws(
+    () =>
+      parsePost(
+        raw(
+          'series:\n  id: building-blog\n  title: Building a blog\n  order: 0'
+        ),
+        'bad'
+      ),
+    /bad.*series.order/
+  );
+  const first = {
+    ...post('first', '2026-10-12'),
+    series: { id: 'building-blog', title: 'Building a blog', order: 1 },
+  };
+  const secret = {
+    ...post('secret-part', '2026-10-13', [], true),
+    series: { id: 'building-blog', title: 'Building a blog', order: 3 },
+  };
+  const navigation = getSeriesNavigation(current, [secret, current, first]);
+  assert.equal(navigation?.position, 2);
+  assert.equal(navigation?.parts.length, 2);
+  assert.equal(navigation?.previous?.slug, 'first');
+  assert.equal(navigation?.next, undefined);
+  assert.equal(
+    getSeriesNavigation(current, [secret, current, first], {
+      includeDrafts: true,
+    })?.next?.slug,
+    'secret-part'
+  );
+  assert.throws(
+    () => validateSeries([first, { ...current, series: first.series }]),
+    /building-blog.*duplicate.*1/
+  );
+  assert.throws(
+    () =>
+      validateSeries([
+        first,
+        { ...current, series: { ...current.series!, title: 'Other title' } },
+      ]),
+    /building-blog.*title/
   );
 });

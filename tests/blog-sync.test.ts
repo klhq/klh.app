@@ -12,6 +12,30 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { syncBlogDirectory } from '../scripts/blog-sync';
 
+test('series conflicts preserve the previous content snapshot', async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'blog-series-sync-'));
+  const output = path.join(root, 'blog');
+  try {
+    await mkdir(output);
+    await writeFile(path.join(output, 'old.mdx'), 'previous snapshot');
+    await assert.rejects(
+      syncBlogDirectory(
+        output,
+        ['one.mdx', 'two.mdx'],
+        async () =>
+          '---\ntitle: Part\ndescription: Example\ndate: "2026-10-10"\nseries:\n  id: example\n  title: Example\n  order: 1\n---\nBody'
+      ),
+      /example.*duplicate.*1/
+    );
+    assert.equal(
+      await readFile(path.join(output, 'old.mdx'), 'utf8'),
+      'previous snapshot'
+    );
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
 test('failed downloads preserve the previous complete blog', async () => {
   const dir = await mkdtemp(path.join(tmpdir(), 'blog-sync-'));
   const output = path.join(dir, 'blog');
