@@ -1,70 +1,48 @@
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
-import matter from 'gray-matter';
 import type { Post, PostMeta } from '@/types/blog';
+import { parsePost } from './blog-frontmatter';
 
 const BLOG_DIR = path.join(process.cwd(), 'src/content/blog');
+
+function isMissing(error: unknown): boolean {
+  return error instanceof Error && 'code' in error && error.code === 'ENOENT';
+}
 
 export async function getAllPosts(directory = BLOG_DIR): Promise<PostMeta[]> {
   let files: string[];
   try {
     files = await readdir(directory);
-  } catch {
-    return [];
+  } catch (error) {
+    if (isMissing(error)) return [];
+    throw error;
   }
-
-  const mdxFiles = files.filter((f) => f.endsWith('.mdx'));
-
-  const posts = await Promise.all(
-    mdxFiles.map(async (filename) => {
-      const raw = await readFile(path.join(directory, filename), 'utf8');
-      const { data } = matter(raw);
-      return {
-        slug: filename.replace(/\.mdx$/, ''),
-        title: data.title ?? '',
-        description: data.description ?? '',
-        date: data.date ?? '',
-        tags: data.tags ?? [],
-        image: data.image,
-        draft: data.draft ?? false,
-      } satisfies PostMeta;
-    })
-  );
-
-  return posts
-    .filter((p) => !p.draft)
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  const posts = await Promise.all(files.filter((f) => f.endsWith('.mdx')).map(async (filename) => {
+    const raw = await readFile(path.join(directory, filename), 'utf8');
+    const { content: _content, ...meta } = parsePost(raw, filename.slice(0, -4));
+    return meta;
+  }));
+  return posts.filter((post) => !post.draft).sort((a, b) => b.date.localeCompare(a.date));
 }
 
 export async function getPostBySlug(slug: string, directory = BLOG_DIR): Promise<Post | null> {
+  if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(slug)) return null;
+  let raw: string;
   try {
-    const raw = await readFile(path.join(directory, `${slug}.mdx`), 'utf8');
-    const { data, content } = matter(raw);
-    if (data.draft) return null;
-    return {
-      slug,
-      title: data.title ?? '',
-      description: data.description ?? '',
-      date: data.date ?? '',
-      tags: data.tags ?? [],
-      image: data.image,
-      draft: data.draft ?? false,
-      content,
-    };
-  } catch {
-    return null;
+    raw = await readFile(path.join(directory, `${slug}.mdx`), 'utf8');
+  } catch (error) {
+    if (isMissing(error)) return null;
+    throw error;
   }
+  const post = parsePost(raw, slug);
+  return post.draft ? null : post;
 }
 
 export async function getAllTags(): Promise<Map<string, number>> {
   const posts = await getAllPosts();
   const tags = new Map<string, number>();
-
   for (const post of posts) {
-    for (const tag of post.tags) {
-      tags.set(tag, (tags.get(tag) ?? 0) + 1);
-    }
+    for (const tag of post.tags) tags.set(tag, (tags.get(tag) ?? 0) + 1);
   }
-
   return tags;
 }
