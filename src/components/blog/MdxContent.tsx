@@ -1,7 +1,12 @@
 import { compileMDX } from 'next-mdx-remote/rsc';
 import remarkGfm from 'remark-gfm';
 import { createHighlighter } from 'shiki';
-import { isValidElement, type ReactElement, type ReactNode } from 'react';
+import {
+  isValidElement,
+  type ReactElement,
+  type ReactNode,
+  type ImgHTMLAttributes,
+} from 'react';
 import CodeBlock from './CodeBlock';
 import { blogImageUrl } from '@/lib/blog-assets';
 import ArticleImage from './ArticleImage';
@@ -45,6 +50,8 @@ type TreeNode = {
   value?: string;
   properties?: Record<string, unknown>;
   children?: TreeNode[];
+  name?: string;
+  attributes?: { type: string; name: string; value?: unknown }[];
 };
 type Heading = { id: string; title: string; level: number };
 
@@ -55,14 +62,40 @@ function nodeText(node: TreeNode): string {
 function linkedImages() {
   return (tree: TreeNode) => {
     function visit(node: TreeNode, linked = false) {
-      const inLink = linked || node.tagName === 'a';
+      const inLink = linked || node.tagName === 'a' || node.name === 'a';
       if (node.tagName === 'img' && inLink) {
         node.properties = { ...node.properties, 'data-no-zoom': true };
+      }
+      if (node.name === 'img') {
+        node.name = 'BlogArticleImage';
+        if (inLink)
+          node.attributes = [
+            ...(node.attributes ?? []),
+            { type: 'mdxJsxAttribute', name: 'data-no-zoom', value: 'true' },
+          ];
       }
       node.children?.forEach((child) => visit(child, inLink));
     }
     visit(tree);
   };
+}
+
+function Image({
+  src,
+  alt,
+  'data-no-zoom': linked,
+  ...props
+}: ImgHTMLAttributes<HTMLImageElement> & {
+  'data-no-zoom'?: boolean | string;
+}) {
+  return (
+    <ArticleImage
+      {...props}
+      src={typeof src === 'string' ? blogImageUrl(src) : ''}
+      alt={alt ?? ''}
+      zoomable={!linked}
+    />
+  );
 }
 
 export default async function MdxContent({
@@ -119,17 +152,8 @@ export default async function MdxContent({
     source,
     components: {
       pre: Pre,
-      img: ({ src, alt, ...props }) => {
-        // MDX supplies string image paths; keep external URLs intact.
-        return (
-          <ArticleImage
-            {...props}
-            src={typeof src === 'string' ? blogImageUrl(src) : ''}
-            alt={alt ?? ''}
-            zoomable={!('data-no-zoom' in props && props['data-no-zoom'])}
-          />
-        );
-      },
+      img: Image,
+      BlogArticleImage: Image,
     },
     options: {
       mdxOptions: {

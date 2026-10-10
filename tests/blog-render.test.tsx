@@ -59,6 +59,20 @@ test('article images expose an enlargement button while linked images remain lin
   assert.match(html, /<a href="https:\/\/example.com"><img/);
 });
 
+test('static JSX images also support enlargement', async () => {
+  const stream = await renderToReadableStream(
+    await MdxContent({
+      source:
+        '<img src="./images/hero.gif" alt="JSX screenshot" />\n\n<a href="https://example.com"><img src="./images/hero.gif" alt="Linked JSX screenshot" /></a>',
+    })
+  );
+  const html = await new Response(stream).text();
+  assert.match(html, /aria-label="Enlarge image: JSX screenshot"/);
+  assert.ok(
+    !html.includes('aria-label="Enlarge image: Linked JSX screenshot"')
+  );
+});
+
 test('table of contents matches unique anchors including formatted and repeated headings', async () => {
   const stream = await renderToReadableStream(
     await MdxContent({

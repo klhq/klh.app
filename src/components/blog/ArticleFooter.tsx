@@ -80,10 +80,8 @@ export default function ArticleFooter({
         </nav>
       )}
       {related.length > 0 && (
-        <section aria-labelledby="related-articles">
-          <h2 id="related-articles" className="section-label mb-3">
-            Related articles
-          </h2>
+        <section aria-label="Related articles">
+          <h2 className="section-label mb-3">Related articles</h2>
           <ul className="space-y-3">
             {related.map((item) => (
               <li key={item.slug}>
