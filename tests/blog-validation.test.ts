@@ -57,3 +57,15 @@ test('validation rejects nested article paths that the publisher cannot synchron
     );
   });
 });
+
+test('validation compiles draft expressions without executing JavaScript or fetching external images', async () => {
+  await fixture(async (directory) => {
+    await writeFile(
+      path.join(directory, 'safe-check.mdx'),
+      article(
+        "export const value = (() => { throw new Error('Article JavaScript was executed'); })()\n\n![Remote](https://invalid.example/image.png)\n\n{value}"
+      )
+    );
+    assert.equal(await validateBlogDirectory(directory), 1);
+  });
+});
