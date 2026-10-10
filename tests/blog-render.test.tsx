@@ -38,10 +38,25 @@ test('article tables render as tables and repeated leading titles appear once', 
 });
 
 test('relative article images use the static blog asset endpoint', async () => {
-  const stream = await renderToReadableStream(await MdxContent({ source: '![Demo](./images/hero.gif)' }));
+  const stream = await renderToReadableStream(
+    await MdxContent({ source: '![Demo](./images/hero.gif)' })
+  );
   const html = await new Response(stream).text();
   assert.ok(html.includes('src="/blog-assets/hero.gif"'));
   assert.ok(html.includes('alt="Demo"'));
+});
+
+test('article images expose an enlargement button while linked images remain links', async () => {
+  const stream = await renderToReadableStream(
+    await MdxContent({
+      source:
+        '![Screenshot](./images/hero.gif)\n\n[![Linked screenshot](./images/hero.gif)](https://example.com)',
+    })
+  );
+  const html = await new Response(stream).text();
+  assert.match(html, /aria-label="Enlarge image: Screenshot"/);
+  assert.ok(!html.includes('aria-label="Enlarge image: Linked screenshot"'));
+  assert.match(html, /<a href="https:\/\/example.com"><img/);
 });
 
 test('table of contents matches unique anchors including formatted and repeated headings', async () => {

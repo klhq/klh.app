@@ -4,6 +4,7 @@ import { createHighlighter } from 'shiki';
 import { isValidElement, type ReactElement, type ReactNode } from 'react';
 import CodeBlock from './CodeBlock';
 import { blogImageUrl } from '@/lib/blog-assets';
+import ArticleImage from './ArticleImage';
 
 const highlighter = await createHighlighter({
   themes: ['github-dark', 'github-light'],
@@ -30,9 +31,7 @@ function Pre({ children }: { children?: ReactNode }) {
   ).props;
   const code = (props.children ?? '').replace(/\n$/, '');
   const language = props.className?.replace('language-', '') ?? 'text';
-  const lang = loadedLanguages.has(language)
-    ? language
-    : 'text';
+  const lang = loadedLanguages.has(language) ? language : 'text';
   const html = highlighter.codeToHtml(code, {
     lang,
     themes: { light: 'github-light', dark: 'github-dark' },
@@ -51,6 +50,19 @@ type Heading = { id: string; title: string; level: number };
 
 function nodeText(node: TreeNode): string {
   return node.value ?? node.children?.map(nodeText).join('') ?? '';
+}
+
+function linkedImages() {
+  return (tree: TreeNode) => {
+    function visit(node: TreeNode, linked = false) {
+      const inLink = linked || node.tagName === 'a';
+      if (node.tagName === 'img' && inLink) {
+        node.properties = { ...node.properties, 'data-no-zoom': true };
+      }
+      node.children?.forEach((child) => visit(child, inLink));
+    }
+    visit(tree);
+  };
 }
 
 export default async function MdxContent({
@@ -110,18 +122,20 @@ export default async function MdxContent({
       img: ({ src, alt, ...props }) => {
         // MDX supplies string image paths; keep external URLs intact.
         return (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <ArticleImage
             {...props}
-            src={typeof src === 'string' ? blogImageUrl(src) : src}
+            src={typeof src === 'string' ? blogImageUrl(src) : ''}
             alt={alt ?? ''}
-            loading="lazy"
+            zoomable={!('data-no-zoom' in props && props['data-no-zoom'])}
           />
         );
       },
     },
     options: {
-      mdxOptions: { remarkPlugins: [remarkGfm], rehypePlugins: [headingLinks] },
+      mdxOptions: {
+        remarkPlugins: [remarkGfm],
+        rehypePlugins: [headingLinks, linkedImages],
+      },
     },
   });
   return (
