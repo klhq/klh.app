@@ -22,6 +22,6 @@ During browser verification, I found repeated titles, raw Markdown tables, and m
 
 ## Validation
 
-The regression suite contains 14 passing tests. TypeScript, ESLint, and the production Next.js build pass. The build uses local content; the live private GitHub fetch was not executed. Unit tests exercise the synchronization failure path. Browser checks used Brave on the local development server.
+The regression suite contains 15 passing tests. TypeScript, ESLint, and the production build with live private GitHub synchronization pass. A Vercel preview failure exposed the Contents API limit for base64 downloads above 1 MB. Downloads now request raw bytes, and a regression test covers a 1.96 MB binary asset. The full build fetched the actual remote articles and images successfully. Unit tests also exercise the synchronization failure path. Browser checks used Brave on the local development server.
 
 The content repository remains the source for articles and images. Deployment is outside this change.

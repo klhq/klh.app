@@ -1,17 +1,9 @@
+import { fetchGithubBytes as fetchBytes } from './github-content';
 import { syncBlogDirectory } from './blog-sync';
 import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { parse as parseJsonc, printParseErrorCode } from 'jsonc-parser';
-
-type GitHubContentsResponse = {
-  type: string;
-  encoding?: string;
-  content?: string;
-  path?: string;
-  sha?: string;
-  message?: string;
-};
 
 type GitHubTreeItem = {
   path: string;
@@ -68,28 +60,6 @@ const RESUME_TOP_LEVEL_KEYS = new Set([
   'education',
   'project',
 ]);
-
-async function fetchBytes(
-  repo: string,
-  filePath: string,
-  ref: string,
-  token: string
-): Promise<Buffer> {
-  const url = `https://api.github.com/repos/${repo}/contents/${encodeURIComponent(filePath)}?ref=${encodeURIComponent(ref)}`;
-  const res = await fetch(url, { headers: GITHUB_HEADERS(token) });
-  const bodyText = await res.text();
-
-  if (!res.ok) {
-    throw new Error(`[fetch] GitHub API failed (${res.status}): ${bodyText}`);
-  }
-
-  const json = JSON.parse(bodyText) as GitHubContentsResponse;
-  if (json.type !== 'file' || json.encoding !== 'base64' || !json.content) {
-    throw new Error(`[fetch] Unexpected response for ${repo}/${filePath}`);
-  }
-
-  return Buffer.from(json.content, 'base64');
-}
 
 async function fetchFile(
   repo: string,
