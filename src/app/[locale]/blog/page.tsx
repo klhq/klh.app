@@ -8,7 +8,10 @@ import { BLOG_URL, FEED_URL } from '@/lib/blog-discovery';
 export const metadata: Metadata = {
   title: 'Blog — KL Hsu',
   description: 'Project showcases and technical writing',
-  alternates: { canonical: BLOG_URL, types: { 'application/rss+xml': FEED_URL } },
+  alternates: {
+    canonical: BLOG_URL,
+    types: { 'application/rss+xml': FEED_URL },
+  },
 };
 
 export default async function BlogPage({
@@ -22,9 +25,7 @@ export default async function BlogPage({
   const { tag } = await searchParams;
   const [posts, tagCounts] = await Promise.all([getAllPosts(), getAllTags()]);
 
-  const filteredPosts = tag
-    ? posts.filter((p) => p.tags.includes(tag))
-    : posts;
+  const filteredPosts = tag ? posts.filter((p) => p.tags.includes(tag)) : posts;
 
   const sortedTags = [...tagCounts.entries()]
     .sort((a, b) => b[1] - a[1])
@@ -39,18 +40,26 @@ export default async function BlogPage({
     >
       <div className="mx-auto w-full max-w-md">
         <header className="animate-fade-in-down mb-8">
-          <h2 className="section-label mb-3">
-            Blog
-          </h2>
+          <h2 className="section-label mb-3">Blog</h2>
           <p className="text-sm text-slate-500 dark:text-slate-400">
             Project showcases and technical writing
           </p>
-          <a href="/feed.xml" className="mt-3 inline-block font-mono text-xs text-slate-500 underline underline-offset-4 hover:text-theme-600 dark:text-slate-400 dark:hover:text-theme-400">Subscribe via RSS</a>
+          <a
+            href="/feed.xml"
+            className="hover:text-theme-600 dark:hover:text-theme-400 mt-3 inline-block font-mono text-xs text-slate-500 underline underline-offset-4 dark:text-slate-400"
+          >
+            Subscribe via RSS
+          </a>
         </header>
 
         {sortedTags.length > 0 && (
           <div className="animate-fade-in-up mb-6">
-            <TagList tags={sortedTags} activeTag={tag} counts={tagCounts} locale={locale} />
+            <TagList
+              tags={sortedTags}
+              activeTag={tag}
+              counts={tagCounts}
+              locale={locale}
+            />
           </div>
         )}
 

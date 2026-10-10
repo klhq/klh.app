@@ -17,15 +17,32 @@ export async function getAllPosts(directory = BLOG_DIR): Promise<PostMeta[]> {
     if (isMissing(error)) return [];
     throw error;
   }
-  const posts = await Promise.all(files.filter((f) => f.endsWith('.mdx')).map(async (filename) => {
-    const raw = await readFile(path.join(directory, filename), 'utf8');
-    const { content: _content, ...meta } = parsePost(raw, filename.slice(0, -4));
-    return meta;
-  }));
-  return posts.filter((post) => !post.draft).sort((a, b) => b.date.localeCompare(a.date));
+  const posts = await Promise.all(
+    files
+      .filter((f) => f.endsWith('.mdx'))
+      .map(async (filename) => {
+        const raw = await readFile(path.join(directory, filename), 'utf8');
+        const post = parsePost(raw, filename.slice(0, -4));
+        return {
+          slug: post.slug,
+          title: post.title,
+          description: post.description,
+          date: post.date,
+          tags: post.tags,
+          image: post.image,
+          draft: post.draft,
+        };
+      })
+  );
+  return posts
+    .filter((post) => !post.draft)
+    .sort((a, b) => b.date.localeCompare(a.date));
 }
 
-export async function getPostBySlug(slug: string, directory = BLOG_DIR): Promise<Post | null> {
+export async function getPostBySlug(
+  slug: string,
+  directory = BLOG_DIR
+): Promise<Post | null> {
   if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(slug)) return null;
   let raw: string;
   try {

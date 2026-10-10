@@ -69,12 +69,12 @@ const RESUME_TOP_LEVEL_KEYS = new Set([
   'project',
 ]);
 
-async function fetchFile(
+async function fetchBytes(
   repo: string,
   filePath: string,
   ref: string,
   token: string
-): Promise<string> {
+): Promise<Buffer> {
   const url = `https://api.github.com/repos/${repo}/contents/${encodeURIComponent(filePath)}?ref=${encodeURIComponent(ref)}`;
   const res = await fetch(url, { headers: GITHUB_HEADERS(token) });
   const bodyText = await res.text();
@@ -88,7 +88,16 @@ async function fetchFile(
     throw new Error(`[fetch] Unexpected response for ${repo}/${filePath}`);
   }
 
-  return Buffer.from(json.content, 'base64').toString('utf8');
+  return Buffer.from(json.content, 'base64');
+}
+
+async function fetchFile(
+  repo: string,
+  filePath: string,
+  ref: string,
+  token: string
+): Promise<string> {
+  return (await fetchBytes(repo, filePath, ref, token)).toString('utf8');
 }
 
 async function fetchOptionalFile(
@@ -291,9 +300,7 @@ async function fetchResume(
         reason instanceof Error ? reason.message : String(reason)
       );
     const detail = reasons.length > 0 ? `\n  - ${reasons.join('\n  - ')}` : '';
-    throw new Error(
-      `[fetch] No resume data found for any locale.${detail}`
-    );
+    throw new Error(`[fetch] No resume data found for any locale.${detail}`);
   }
 }
 
@@ -425,18 +432,24 @@ async function fetchBlogPosts(
     );
   }
   const treeJson = (await treeRes.json()) as GitHubTreeResponse;
-  if (treeJson.truncated) throw new Error('[fetch] Blog: incomplete GitHub tree.');
+  if (treeJson.truncated)
+    throw new Error('[fetch] Blog: incomplete GitHub tree.');
 
-  // Filter for blog/*.mdx files
+  // Include article files and their supported image assets.
   const blogFiles = treeJson.tree.filter(
     (item) =>
       item.type === 'blob' &&
-      item.path.startsWith('blog/') &&
-      item.path.endsWith('.mdx')
+      ((item.path.startsWith('blog/') && item.path.endsWith('.mdx')) ||
+        /^blog\/images\/[a-zA-Z0-9][a-zA-Z0-9_.-]*\.(png|jpe?g|gif|webp|avif)$/.test(
+          item.path
+        ))
   );
 
-  await syncBlogDirectory(outDir, blogFiles.map((file) => file.path),
-    (file) => fetchFile(repo, file, commitSha, token));
+  await syncBlogDirectory(
+    outDir,
+    blogFiles.map((file) => file.path),
+    (file) => fetchBytes(repo, file, commitSha, token)
+  );
   console.info(`[fetch] Blog: ${blogFiles.length} posts fetched to ${outDir}`);
 }
 

@@ -64,6 +64,7 @@ bun run dev:local
 | `bun run build`         | Fetch content + production build                    |
 | `bun run fetch:content` | Fetch resume, landing, and blog content from GitHub |
 | `bun run lint`          | ESLint                                              |
+| `bun test`              | Blog publishing and rendering regression tests      |
 | `bun run prettier`      | Prettier                                            |
 
 ## Environment Variables
@@ -106,6 +107,16 @@ klh-content/
 ```
 
 Push to `klh-content` triggers a Vercel deploy hook.
+
+## Blog Publishing
+
+Write articles as `blog/<slug>.mdx`. Use letters, numbers, hyphens, and underscores for the slug. Frontmatter requires `title`, `description`, and a valid `date` in `YYYY-MM-DD` format. You can add `tags` as a string array, `image` as a sharing image URL, and `draft: true` to hide an article from direct links, listings, RSS, and sitemap.
+
+Store article images in `blog/images/` and reference them with `./images/<filename>`. The fetch script downloads PNG, JPEG, GIF, WebP, and AVIF files with the articles. It validates the full batch before replacing the local blog snapshot. Failed downloads preserve the previous snapshot and fail strict builds.
+
+Readers can expand the article table of contents, link to individual headings, and copy fenced code blocks. The renderer supports Markdown tables and keeps inline code within the paragraph. If the body starts with the same title as the article header, the renderer omits that repeated heading.
+
+Subscribe at `/feed.xml`. The sitemap at `/sitemap.xml` lists published English article URLs. Locale routes share the English canonical URL because article content remains English.
 
 ## Design Language
 

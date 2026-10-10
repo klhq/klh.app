@@ -43,7 +43,7 @@ export default async function PostPage({ params }: PostPageProps) {
           className={clsx(
             'group mb-8 inline-flex items-center gap-1 text-sm text-slate-400 transition-colors',
             'hover:text-theme-600',
-            'dark:text-slate-500 dark:hover:text-theme-400'
+            'dark:hover:text-theme-400 dark:text-slate-500'
           )}
         >
           <span className="transition-transform duration-200 group-hover:-translate-x-0.5">
@@ -73,7 +73,7 @@ export default async function PostPage({ params }: PostPageProps) {
               <Link
                 key={tag}
                 href={`/${locale}/blog?tag=${encodeURIComponent(tag)}`}
-                className="tag-pill transition-colors hover:text-theme-600 dark:hover:text-theme-400"
+                className="tag-pill hover:text-theme-600 dark:hover:text-theme-400 transition-colors"
               >
                 {tag}
               </Link>
@@ -82,7 +82,7 @@ export default async function PostPage({ params }: PostPageProps) {
         </header>
 
         <div className="animate-fade-in-up">
-          <MdxContent source={post.content} />
+          <MdxContent source={post.content} title={post.title} />
         </div>
       </div>
     </div>
