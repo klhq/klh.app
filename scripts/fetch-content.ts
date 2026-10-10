@@ -1,4 +1,5 @@
-import { mkdir, readFile, stat, writeFile, rm } from 'node:fs/promises';
+import { syncBlogDirectory } from './blog-sync';
+import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { parse as parseJsonc, printParseErrorCode } from 'jsonc-parser';
@@ -404,8 +405,7 @@ async function fetchBlogPosts(
   const refRes = await fetch(refUrl, { headers: GITHUB_HEADERS(token) });
   if (!refRes.ok) {
     if (refRes.status === 404) {
-      console.info('[fetch] Blog: ref not found, skipping.');
-      return;
+      throw new Error('[fetch] Blog: content ref not found.');
     }
     const bodyText = await refRes.text();
     throw new Error(
@@ -425,6 +425,7 @@ async function fetchBlogPosts(
     );
   }
   const treeJson = (await treeRes.json()) as GitHubTreeResponse;
+  if (treeJson.truncated) throw new Error('[fetch] Blog: incomplete GitHub tree.');
 
   // Filter for blog/*.mdx files
   const blogFiles = treeJson.tree.filter(
@@ -434,32 +435,9 @@ async function fetchBlogPosts(
       item.path.endsWith('.mdx')
   );
 
-  if (blogFiles.length === 0) {
-    console.info('[fetch] Blog: no .mdx files found in blog/, skipping.');
-    return;
-  }
-
-  // Clean and recreate output directory
-  await rm(outDir, { recursive: true, force: true });
-  await mkdir(outDir, { recursive: true });
-
-  // Fetch each MDX file
-  const results = await Promise.allSettled(
-    blogFiles.map(async (file) => {
-      const content = await fetchFile(repo, file.path, ref, token);
-      const filename = path.basename(file.path);
-      await writeFile(path.join(outDir, filename), content, 'utf8');
-      return filename;
-    })
-  );
-
-  const succeeded = results.filter((r) => r.status === 'fulfilled');
-  const failed = results.filter((r) => r.status === 'rejected');
-
-  console.info(`[fetch] Blog: ${succeeded.length} posts fetched to ${outDir}`);
-  if (failed.length > 0) {
-    console.warn(`[fetch] Blog: ${failed.length} posts failed to fetch`);
-  }
+  await syncBlogDirectory(outDir, blogFiles.map((file) => file.path),
+    (file) => fetchFile(repo, file, commitSha, token));
+  console.info(`[fetch] Blog: ${blogFiles.length} posts fetched to ${outDir}`);
 }
 
 async function fetchQuotes(
