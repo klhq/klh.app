@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { getAllPosts, getPostBySlug } from '@/lib/blog';
 import MdxContent from '@/components/blog/MdxContent';
 import clsx from 'clsx';
+import { getArticleMetadata } from '@/lib/blog-discovery';
 
 interface PostPageProps {
   params: Promise<{ locale: string; slug: string }>;
@@ -19,17 +20,8 @@ export async function generateMetadata({
 }: PostPageProps): Promise<Metadata> {
   const { slug } = await params;
   const post = await getPostBySlug(slug);
-  if (!post) return {};
-
-  return {
-    title: `${post.title} — KL Hsu`,
-    description: post.description,
-    openGraph: {
-      title: post.title,
-      description: post.description,
-      ...(post.image && { images: [post.image] }),
-    },
-  };
+  if (!post) notFound();
+  return getArticleMetadata(post);
 }
 
 export default async function PostPage({ params }: PostPageProps) {

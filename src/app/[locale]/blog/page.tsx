@@ -3,10 +3,12 @@ import { getAllPosts, getAllTags } from '@/lib/blog';
 import PostCard from '@/components/blog/PostCard';
 import TagList from '@/components/blog/TagList';
 import clsx from 'clsx';
+import { BLOG_URL, FEED_URL } from '@/lib/blog-discovery';
 
 export const metadata: Metadata = {
   title: 'Blog — KL Hsu',
   description: 'Project showcases and technical writing',
+  alternates: { canonical: BLOG_URL, types: { 'application/rss+xml': FEED_URL } },
 };
 
 export default async function BlogPage({
@@ -43,6 +45,7 @@ export default async function BlogPage({
           <p className="text-sm text-slate-500 dark:text-slate-400">
             Project showcases and technical writing
           </p>
+          <a href="/feed.xml" className="mt-3 inline-block font-mono text-xs text-slate-500 underline underline-offset-4 hover:text-theme-600 dark:text-slate-400 dark:hover:text-theme-400">Subscribe via RSS</a>
         </header>
 
         {sortedTags.length > 0 && (
