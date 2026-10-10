@@ -45,7 +45,7 @@ export default async function PostPage({ params }: PostPageProps) {
         'dark:bg-slate-950'
       )}
     >
-      <div className="mx-auto w-full max-w-md">
+      <div className="mx-auto w-full max-w-3xl">
         <Link
           href={`/${locale}/blog`}
           className={clsx(
@@ -70,7 +70,7 @@ export default async function PostPage({ params }: PostPageProps) {
           </div>
           <h1
             className={clsx(
-              'mb-4 text-2xl font-bold tracking-tight text-slate-900',
+              'mb-4 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl',
               'dark:text-slate-50'
             )}
           >
