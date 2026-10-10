@@ -65,6 +65,7 @@ export function getArticleMetadata(post: PostMeta): Metadata {
       siteName: 'KL Hsu',
       locale: 'en_US',
       publishedTime: `${post.date}T00:00:00.000Z`,
+      ...(post.updated && { modifiedTime: `${post.updated}T00:00:00.000Z` }),
       authors: ['KL Hsu'],
       tags: post.tags,
       ...(images && { images }),

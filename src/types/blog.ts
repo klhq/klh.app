@@ -3,6 +3,8 @@ export type PostMeta = {
   title: string;
   description: string;
   date: string;
+  updated?: string;
+  readingMinutes?: number;
   tags: string[];
   image?: string;
   draft?: boolean;

@@ -6,6 +6,7 @@ import MdxContent from '@/components/blog/MdxContent';
 import clsx from 'clsx';
 import { getArticleMetadata } from '@/lib/blog-discovery';
 import { isPreviewMode } from '@/lib/preview';
+import PostDetails from '@/components/blog/PostDetails';
 
 interface PostPageProps {
   params: Promise<{ locale: string; slug: string }>;
@@ -65,12 +66,8 @@ export default async function PostPage({ params }: PostPageProps) {
               Draft preview · Not published
             </p>
           )}
-          <div className="mb-2 font-mono text-[10px] text-slate-400 dark:text-slate-500">
-            {new Date(post.date).toLocaleDateString(locale, {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })}
+          <div className="mb-2">
+            <PostDetails post={post} locale={locale} />
           </div>
           <h1
             className={clsx(

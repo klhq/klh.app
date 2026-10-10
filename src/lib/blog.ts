@@ -35,6 +35,8 @@ export async function getAllPosts(
           title: post.title,
           description: post.description,
           date: post.date,
+          updated: post.updated,
+          readingMinutes: post.readingMinutes,
           tags: post.tags,
           image: post.image,
           draft: post.draft,

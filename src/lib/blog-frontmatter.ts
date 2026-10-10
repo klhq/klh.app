@@ -1,6 +1,7 @@
 import matter from 'gray-matter';
 import { load, JSON_SCHEMA } from 'js-yaml';
 import type { Post } from '@/types/blog';
+import { estimateReadingMinutes } from './blog-reading';
 
 export function parsePost(raw: string, slug: string): Post {
   let parsed: ReturnType<typeof matter>;
@@ -33,6 +34,15 @@ export function parsePost(raw: string, slug: string): Post {
     new Date(date).toISOString().slice(0, 10) !== date
   )
     fail('date');
+  const updated = data.updated === undefined ? undefined : text('updated');
+  if (
+    updated !== undefined &&
+    (!/^\d{4}-\d{2}-\d{2}$/.test(updated) ||
+      !Number.isFinite(Date.parse(updated)) ||
+      new Date(updated).toISOString().slice(0, 10) !== updated ||
+      updated < date)
+  )
+    fail('updated');
   if (
     data.tags !== undefined &&
     (!Array.isArray(data.tags) ||
@@ -51,6 +61,8 @@ export function parsePost(raw: string, slug: string): Post {
     title: text('title'),
     description: text('description'),
     date,
+    updated,
+    readingMinutes: estimateReadingMinutes(content),
     tags: [
       ...new Set<string>((data.tags ?? []).map((tag: string) => tag.trim())),
     ],
