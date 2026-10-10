@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { getAllPosts, getPostBySlug } from '@/lib/blog';
 import MdxContent from '@/components/blog/MdxContent';
 import clsx from 'clsx';
+import { getArticleMetadata } from '@/lib/blog-discovery';
 
 interface PostPageProps {
   params: Promise<{ locale: string; slug: string }>;
@@ -19,17 +20,8 @@ export async function generateMetadata({
 }: PostPageProps): Promise<Metadata> {
   const { slug } = await params;
   const post = await getPostBySlug(slug);
-  if (!post) return {};
-
-  return {
-    title: `${post.title} — KL Hsu`,
-    description: post.description,
-    openGraph: {
-      title: post.title,
-      description: post.description,
-      ...(post.image && { images: [post.image] }),
-    },
-  };
+  if (!post) notFound();
+  return getArticleMetadata(post);
 }
 
 export default async function PostPage({ params }: PostPageProps) {
@@ -45,13 +37,13 @@ export default async function PostPage({ params }: PostPageProps) {
         'dark:bg-slate-950'
       )}
     >
-      <div className="mx-auto w-full max-w-md">
+      <div className="mx-auto w-full max-w-3xl">
         <Link
           href={`/${locale}/blog`}
           className={clsx(
             'group mb-8 inline-flex items-center gap-1 text-sm text-slate-400 transition-colors',
             'hover:text-theme-600',
-            'dark:text-slate-500 dark:hover:text-theme-400'
+            'dark:hover:text-theme-400 dark:text-slate-500'
           )}
         >
           <span className="transition-transform duration-200 group-hover:-translate-x-0.5">
@@ -70,7 +62,7 @@ export default async function PostPage({ params }: PostPageProps) {
           </div>
           <h1
             className={clsx(
-              'mb-4 text-2xl font-bold tracking-tight text-slate-900',
+              'mb-4 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl',
               'dark:text-slate-50'
             )}
           >
@@ -81,7 +73,7 @@ export default async function PostPage({ params }: PostPageProps) {
               <Link
                 key={tag}
                 href={`/${locale}/blog?tag=${encodeURIComponent(tag)}`}
-                className="tag-pill transition-colors hover:text-theme-600 dark:hover:text-theme-400"
+                className="tag-pill hover:text-theme-600 dark:hover:text-theme-400 transition-colors"
               >
                 {tag}
               </Link>
@@ -90,7 +82,7 @@ export default async function PostPage({ params }: PostPageProps) {
         </header>
 
         <div className="animate-fade-in-up">
-          <MdxContent source={post.content} />
+          <MdxContent source={post.content} title={post.title} />
         </div>
       </div>
     </div>

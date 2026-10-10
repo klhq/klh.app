@@ -1,16 +1,9 @@
-import { mkdir, readFile, stat, writeFile, rm } from 'node:fs/promises';
+import { fetchGithubBytes as fetchBytes } from './github-content';
+import { syncBlogDirectory } from './blog-sync';
+import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { parse as parseJsonc, printParseErrorCode } from 'jsonc-parser';
-
-type GitHubContentsResponse = {
-  type: string;
-  encoding?: string;
-  content?: string;
-  path?: string;
-  sha?: string;
-  message?: string;
-};
 
 type GitHubTreeItem = {
   path: string;
@@ -74,20 +67,7 @@ async function fetchFile(
   ref: string,
   token: string
 ): Promise<string> {
-  const url = `https://api.github.com/repos/${repo}/contents/${encodeURIComponent(filePath)}?ref=${encodeURIComponent(ref)}`;
-  const res = await fetch(url, { headers: GITHUB_HEADERS(token) });
-  const bodyText = await res.text();
-
-  if (!res.ok) {
-    throw new Error(`[fetch] GitHub API failed (${res.status}): ${bodyText}`);
-  }
-
-  const json = JSON.parse(bodyText) as GitHubContentsResponse;
-  if (json.type !== 'file' || json.encoding !== 'base64' || !json.content) {
-    throw new Error(`[fetch] Unexpected response for ${repo}/${filePath}`);
-  }
-
-  return Buffer.from(json.content, 'base64').toString('utf8');
+  return (await fetchBytes(repo, filePath, ref, token)).toString('utf8');
 }
 
 async function fetchOptionalFile(
@@ -290,9 +270,7 @@ async function fetchResume(
         reason instanceof Error ? reason.message : String(reason)
       );
     const detail = reasons.length > 0 ? `\n  - ${reasons.join('\n  - ')}` : '';
-    throw new Error(
-      `[fetch] No resume data found for any locale.${detail}`
-    );
+    throw new Error(`[fetch] No resume data found for any locale.${detail}`);
   }
 }
 
@@ -404,8 +382,7 @@ async function fetchBlogPosts(
   const refRes = await fetch(refUrl, { headers: GITHUB_HEADERS(token) });
   if (!refRes.ok) {
     if (refRes.status === 404) {
-      console.info('[fetch] Blog: ref not found, skipping.');
-      return;
+      throw new Error('[fetch] Blog: content ref not found.');
     }
     const bodyText = await refRes.text();
     throw new Error(
@@ -425,41 +402,25 @@ async function fetchBlogPosts(
     );
   }
   const treeJson = (await treeRes.json()) as GitHubTreeResponse;
+  if (treeJson.truncated)
+    throw new Error('[fetch] Blog: incomplete GitHub tree.');
 
-  // Filter for blog/*.mdx files
+  // Include article files and their supported image assets.
   const blogFiles = treeJson.tree.filter(
     (item) =>
       item.type === 'blob' &&
-      item.path.startsWith('blog/') &&
-      item.path.endsWith('.mdx')
+      ((item.path.startsWith('blog/') && item.path.endsWith('.mdx')) ||
+        /^blog\/images\/[a-zA-Z0-9][a-zA-Z0-9_.-]*\.(png|jpe?g|gif|webp|avif)$/.test(
+          item.path
+        ))
   );
 
-  if (blogFiles.length === 0) {
-    console.info('[fetch] Blog: no .mdx files found in blog/, skipping.');
-    return;
-  }
-
-  // Clean and recreate output directory
-  await rm(outDir, { recursive: true, force: true });
-  await mkdir(outDir, { recursive: true });
-
-  // Fetch each MDX file
-  const results = await Promise.allSettled(
-    blogFiles.map(async (file) => {
-      const content = await fetchFile(repo, file.path, ref, token);
-      const filename = path.basename(file.path);
-      await writeFile(path.join(outDir, filename), content, 'utf8');
-      return filename;
-    })
+  await syncBlogDirectory(
+    outDir,
+    blogFiles.map((file) => file.path),
+    (file) => fetchBytes(repo, file, commitSha, token)
   );
-
-  const succeeded = results.filter((r) => r.status === 'fulfilled');
-  const failed = results.filter((r) => r.status === 'rejected');
-
-  console.info(`[fetch] Blog: ${succeeded.length} posts fetched to ${outDir}`);
-  if (failed.length > 0) {
-    console.warn(`[fetch] Blog: ${failed.length} posts failed to fetch`);
-  }
+  console.info(`[fetch] Blog: ${blogFiles.length} posts fetched to ${outDir}`);
 }
 
 async function fetchQuotes(
