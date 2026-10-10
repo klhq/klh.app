@@ -56,6 +56,33 @@ export function parsePost(raw: string, slug: string): Post {
     (typeof data.image !== 'string' || !data.image.trim())
   )
     fail('image');
+  let links: Post['links'];
+  if (data.links !== undefined) {
+    if (
+      !data.links ||
+      typeof data.links !== 'object' ||
+      Array.isArray(data.links) ||
+      Object.keys(data.links).some((key) => !['github', 'demo'].includes(key))
+    )
+      fail('links');
+    links = {};
+    for (const key of ['github', 'demo'] as const) {
+      if (data.links[key] === undefined) continue;
+      if (typeof data.links[key] !== 'string') fail(`links.${key}`);
+      try {
+        const url = new URL(data.links[key].trim());
+        if (
+          !['https:', 'http:'].includes(url.protocol) ||
+          url.username ||
+          url.password
+        )
+          fail(`links.${key}`);
+        links[key] = url.href;
+      } catch {
+        fail(`links.${key}`);
+      }
+    }
+  }
   return {
     slug,
     title: text('title'),
@@ -63,6 +90,7 @@ export function parsePost(raw: string, slug: string): Post {
     date,
     updated,
     readingMinutes: estimateReadingMinutes(content),
+    links,
     tags: [
       ...new Set<string>((data.tags ?? []).map((tag: string) => tag.trim())),
     ],

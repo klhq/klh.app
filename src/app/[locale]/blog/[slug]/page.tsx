@@ -7,6 +7,7 @@ import clsx from 'clsx';
 import { getArticleMetadata } from '@/lib/blog-discovery';
 import { isPreviewMode } from '@/lib/preview';
 import PostDetails from '@/components/blog/PostDetails';
+import ArticleFooter from '@/components/blog/ArticleFooter';
 
 interface PostPageProps {
   params: Promise<{ locale: string; slug: string }>;
@@ -38,6 +39,8 @@ export default async function PostPage({ params }: PostPageProps) {
 
   if (!post) notFound();
 
+  const options = { includeDrafts: isPreviewMode() };
+  const posts = await getAllPosts(undefined, options);
   return (
     <div
       className={clsx(
@@ -93,6 +96,12 @@ export default async function PostPage({ params }: PostPageProps) {
         <div className="animate-fade-in-up">
           <MdxContent source={post.content} title={post.title} />
         </div>
+        <ArticleFooter
+          post={post}
+          posts={posts}
+          locale={locale}
+          options={options}
+        />
       </div>
     </div>
   );

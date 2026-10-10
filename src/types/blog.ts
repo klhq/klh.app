@@ -5,6 +5,7 @@ export type PostMeta = {
   date: string;
   updated?: string;
   readingMinutes?: number;
+  links?: { github?: string; demo?: string };
   tags: string[];
   image?: string;
   draft?: boolean;
