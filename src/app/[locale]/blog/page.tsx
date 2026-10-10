@@ -4,6 +4,7 @@ import PostCard from '@/components/blog/PostCard';
 import TagList from '@/components/blog/TagList';
 import clsx from 'clsx';
 import { BLOG_URL, FEED_URL } from '@/lib/blog-discovery';
+import { isPreviewMode } from '@/lib/preview';
 
 export const metadata: Metadata = {
   title: 'Blog — KL Hsu',
@@ -23,7 +24,11 @@ export default async function BlogPage({
 }) {
   const { locale } = await params;
   const { tag } = await searchParams;
-  const [posts, tagCounts] = await Promise.all([getAllPosts(), getAllTags()]);
+  const options = { includeDrafts: isPreviewMode() };
+  const [posts, tagCounts] = await Promise.all([
+    getAllPosts(undefined, options),
+    getAllTags(options),
+  ]);
 
   const filteredPosts = tag ? posts.filter((p) => p.tags.includes(tag)) : posts;
 

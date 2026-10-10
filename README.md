@@ -116,6 +116,16 @@ Store article images in `blog/images/` and reference them with `./images/<filena
 
 Readers can expand the article table of contents, link to individual headings, and copy fenced code blocks. The renderer supports Markdown tables and keeps inline code within the paragraph. If the body starts with the same title as the article header, the renderer omits that repeated heading.
 
+### Draft Preview and Content Checks
+
+Keep `draft: true` while writing. After merging the content into `klh-content` main, the existing Forgejo workflow rebuilds `klh-preview.home`. That private preview and local development show drafts with a Draft preview label. The production site still returns 404 for drafts and excludes them from listings, RSS, and sitemap. Set `draft: false` and merge to publish. Content PRs do not deploy previews.
+
+Preview visibility uses the existing `isPreviewMode()` setting: `NEXT_PUBLIC_PREVIEW=true` for the homelab Docker build or `NODE_ENV=development` locally. This flag does not provide authentication; retain the existing private network access to `klh-preview.home` and keep the flag unset on public production deployments.
+
+Run `bun run validate:blog` to check all articles, including drafts. To check a separate content checkout, run `bun run validate:blog /path/to/klh-content/blog`. The command validates frontmatter and filenames, compiles MDX without executing article JavaScript, and verifies local Markdown, reference-style, and static JSX image paths. Local images must use `./images/<filename>`, `images/<filename>`, or `/blog-assets/<filename>`; HTTP(S) images are not fetched. JSX `img` elements must use a static string `src`. The production build runs this check after fetching content.
+
+The content repository's `Blog content checks` GitHub job uses this shared command on PR content and does not use deployment secrets. Merge the app validator before enabling the content workflow, which checks out `klh.app` main. Require the job through the content repository's branch protection if merge blocking is desired.
+
 Subscribe at `/feed.xml`. The sitemap at `/sitemap.xml` lists published English article URLs. Locale routes share the English canonical URL because article content remains English.
 
 ## Design Language
