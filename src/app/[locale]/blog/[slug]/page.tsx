@@ -6,6 +6,9 @@ import MdxContent from '@/components/blog/MdxContent';
 import clsx from 'clsx';
 import { getArticleMetadata } from '@/lib/blog-discovery';
 import { isPreviewMode } from '@/lib/preview';
+import PostDetails from '@/components/blog/PostDetails';
+import ArticleFooter from '@/components/blog/ArticleFooter';
+import SeriesNavigation from '@/components/blog/SeriesNavigation';
 
 interface PostPageProps {
   params: Promise<{ locale: string; slug: string }>;
@@ -37,6 +40,8 @@ export default async function PostPage({ params }: PostPageProps) {
 
   if (!post) notFound();
 
+  const options = { includeDrafts: isPreviewMode() };
+  const posts = await getAllPosts(undefined, options);
   return (
     <div
       className={clsx(
@@ -65,12 +70,8 @@ export default async function PostPage({ params }: PostPageProps) {
               Draft preview · Not published
             </p>
           )}
-          <div className="mb-2 font-mono text-[10px] text-slate-400 dark:text-slate-500">
-            {new Date(post.date).toLocaleDateString(locale, {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })}
+          <div className="mb-2">
+            <PostDetails post={post} locale={locale} />
           </div>
           <h1
             className={clsx(
@@ -94,8 +95,20 @@ export default async function PostPage({ params }: PostPageProps) {
         </header>
 
         <div className="animate-fade-in-up">
+          <SeriesNavigation
+            post={post}
+            posts={posts}
+            locale={locale}
+            options={options}
+          />
           <MdxContent source={post.content} title={post.title} />
         </div>
+        <ArticleFooter
+          post={post}
+          posts={posts}
+          locale={locale}
+          options={options}
+        />
       </div>
     </div>
   );

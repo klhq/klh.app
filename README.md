@@ -128,6 +128,29 @@ The content repository's `Blog content checks` GitHub job uses this shared comma
 
 Subscribe at `/feed.xml`. The sitemap at `/sitemap.xml` lists published English article URLs. Locale routes share the English canonical URL because article content remains English.
 
+### Reading Metadata and Series
+
+Cards and article headers show an estimated reading time. The estimate uses prose and inline code at 220 words per minute or 350 CJK characters per minute, skips fenced code blocks, and has a minimum of one minute. It is an estimate rather than a timed reading measurement.
+
+Add optional metadata when an article is updated, belongs to a series, or has project links:
+
+```yaml
+updated: '2026-10-11'
+series:
+  id: building-a-blog
+  title: Building a technical blog
+  order: 2
+links:
+  github: https://github.com/klhq/klh.app
+  demo: https://klh.app
+```
+
+`updated` must be a valid calendar date on or after `date`. It also supplies the sharing modification date and sitemap last modification date. Series IDs follow the article slug format. Each series uses one title and a unique positive integer `order` for every part. Gaps are allowed, so an unpublished part does not block the rest of a series. Readers see the ordered directory, their position among visible parts, and series previous/next links. Invalid or conflicting series metadata fails content validation and preserves the previous snapshot during synchronization.
+
+Article footers include chronological previous/next links, up to three related articles ranked by shared tags, and optional GitHub/demo links. Related-article ties use the newer publication date, then slug. Only HTTP(S) project URLs without embedded credentials are allowed. Published pages exclude drafts from every navigation section; private previews include them.
+
+Click or keyboard-activate an article image to enlarge it. Close with Escape, the close button, or the backdrop. Focus returns to the original image button. Images already wrapped in links keep their link behavior.
+
 ## Design Language
 
 "Glass Hub" — narrow `max-w-md` layout, glass cards (`backdrop-blur`, semi-transparent borders), monospace micro-labels, entrance animations. Shared across landing page and blog.

@@ -2,6 +2,7 @@ import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { Post, PostMeta } from '@/types/blog';
 import { parsePost } from './blog-frontmatter';
+import { validateSeries } from './blog-series';
 
 const BLOG_DIR = path.join(process.cwd(), 'src/content/blog');
 
@@ -35,12 +36,17 @@ export async function getAllPosts(
           title: post.title,
           description: post.description,
           date: post.date,
+          updated: post.updated,
+          readingMinutes: post.readingMinutes,
+          links: post.links,
+          series: post.series,
           tags: post.tags,
           image: post.image,
           draft: post.draft,
         };
       })
   );
+  validateSeries(posts);
   return posts
     .filter((post) => options.includeDrafts || !post.draft)
     .sort((a, b) => b.date.localeCompare(a.date));

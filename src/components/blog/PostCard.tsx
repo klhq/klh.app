@@ -12,6 +12,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import clsx from 'clsx';
 import type { PostMeta } from '@/types/blog';
+import PostDetails from './PostDetails';
 
 interface PostCardProps {
   post: PostMeta;
@@ -27,13 +28,7 @@ const PostCard: FC<PostCardProps> = ({ post, locale }) => (
             Draft preview
           </p>
         )}
-        <div className="font-mono text-[10px] text-slate-400 dark:text-slate-500">
-          {new Date(post.date).toLocaleDateString(locale, {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric',
-          })}
-        </div>
+        <PostDetails post={post} locale={locale} />
         <CardTitle
           render={<h2 />}
           className={clsx(
